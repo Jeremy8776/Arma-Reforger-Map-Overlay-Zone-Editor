@@ -1,0 +1,114 @@
+/* ========================================
+   CANVAS CONTAINER
+   ======================================== */
+
+.canvas-container {
+    flex: 1;
+    position: relative;
+    background:
+        radial-gradient(circle at center, var(--color-bg-tertiary) 0%, var(--color-bg-primary) 100%),
+        repeating-linear-gradient(0deg, transparent, transparent 49px, var(--color-border) 49px, var(--color-border) 50px),
+        repeating-linear-gradient(90deg, transparent, transparent 49px, var(--color-border) 49px, var(--color-border) 50px);
+    background-size: 100% 100%, 50px 50px, 50px 50px;
+    overflow: hidden;
+}
+
+.upload-prompt {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-md);
+    padding: var(--spacing-xl);
+    text-align: center;
+    background: var(--color-bg-secondary);
+    border: 2px dashed var(--color-border);
+    border-radius: var(--radius-lg);
+    transition: all var(--transition-normal);
+}
+
+.upload-prompt:hover {
+    border-color: var(--color-accent);
+    background: rgba(var(--color-accent-rgb), 0.05);
+}
+
+.upload-prompt.drag-over {
+    border-color: var(--color-accent);
+    background: rgba(var(--color-accent-rgb), 0.1);
+    transform: translate(-50%, -50%) scale(1.02);
+}
+
+.upload-icon {
+    width: 80px;
+    height: 80px;
+    color: var(--color-text-muted);
+}
+
+.upload-prompt h2 {
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--color-text-primary);
+}
+
+.upload-prompt p {
+    color: var(--color-text-secondary);
+}
+
+.upload-hint {
+    font-size: 12px;
+    color: var(--color-text-muted);
+}
+
+#mapCanvas {
+    display: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+#mapCanvas.visible {
+    display: block;
+}
+
+.zoom-indicator {
+    position: absolute;
+    bottom: var(--spacing-md);
+    right: var(--spacing-md);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--color-text-secondary);
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    opacity: 0;
+    transition: opacity var(--transition-fast);
+}
+
+.zoom-indicator.visible {
+    opacity: 1;
+}
+
+/* Cursor styles for canvas */
+.canvas-container.tool-select {
+    cursor: default;
+}
+
+.canvas-container.tool-pan {
+    cursor: grab;
+}
+
+.canvas-container.tool-pan:active {
+    cursor: grabbing;
+}
+
+.canvas-container.tool-rectangle,
+.canvas-container.tool-circle,
+.canvas-container.tool-line,
+.canvas-container.tool-pen,
+.canvas-container.tool-freehand {
+    cursor: crosshair;
+}

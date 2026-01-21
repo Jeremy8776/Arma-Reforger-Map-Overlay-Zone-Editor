@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Documentation - Arma Reforger Map Overlay Zone Editor</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="index.css">
+    <style>
+        .docs-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            overflow-y: auto;
+            height: calc(100vh - 56px);
+        }
+
+        .docs-section {
+            margin-bottom: 60px;
+            background: var(--color-bg-secondary);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-lg);
+            padding: 30px;
+        }
+
+        .docs-title {
+            font-size: 32px;
+            margin-bottom: 20px;
+            color: var(--color-accent);
+            border-bottom: 2px solid var(--color-border);
+            padding-bottom: 10px;
+        }
+
+        .docs-h2 {
+            font-size: 24px;
+            color: var(--color-text-primary);
+            margin: 30px 0 15px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .docs-h3 {
+            font-size: 18px;
+            color: var(--color-text-secondary);
+            margin: 20px 0 10px 0;
+            font-weight: 600;
+        }
+
+        .docs-p {
+            color: #b0b5be;
+            line-height: 1.6;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+
+        .docs-list {
+            list-style: none;
+            margin-bottom: 20px;
+        }
+
+        .docs-list li {
+            position: relative;
+            padding-left: 20px;
+            margin-bottom: 8px;
+            color: #b0b5be;
+        }
+
+        .docs-list li::before {
+            content: "•";
+            color: var(--color-accent);
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+        }
+
+        .key-badge {
+            display: inline-block;
+            background: var(--color-bg-elevated);
+            border: 1px solid var(--color-border);
+            border-radius: 4px;
+            padding: 2px 6px;
+            font-family: var(--font-mono);
+            font-size: 12px;
+            color: var(--color-accent);
+            margin: 0 4px;
+        }
+
+        .code-block {
+            background: #1e1e1e;
+            padding: 15px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--color-border);
+            font-family: var(--font-mono);
+            font-size: 13px;
+            color: #d4d4d4;
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+
+        .img-placeholder {
+            width: 100%;
+            height: 200px;
+            background: var(--color-bg-tertiary);
+            border: 1px dashed var(--color-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--color-text-muted);
+            margin: 20px 0;
+            border-radius: var(--radius-md);
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--color-text-secondary);
+            text-decoration: none;
+            margin-bottom: 20px;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .back-link:hover {
+            color: var(--color-accent);
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-brand">
+                <a href="index.html" class="logo">
+                    <i data-lucide="layers"></i>
+                </a>
+                <h1>Documentation</h1>
+                <span class="version">v1.0</span>
+            </div>
+            <div class="header-actions">
+                <a href="index.html" class="btn btn-primary">
+                    <i data-lucide="arrow-left"></i>
+                    Back to Editor
+                </a>
+            </div>
+        </header>
+
+        <div class="docs-container">
+            <a href="index.html" class="back-link">
+                <i data-lucide="arrow-left"></i>
+                Back to Editor
+            </a>
+
+            <!-- Getting Started -->
+            <div class="docs-section">
+                <h1 class="docs-title">Getting Started</h1>
+                <p class="docs-p">
+                    Welcome to the Arma Reforger Map Overlay Zone Editor. This tool allows you to design map zones (Safe
+                    Zones, PvP Zones, etc.) visually on top of your game map and export them directly to code or images
+                    for your server.
+                </p>
+
+                <h2 class="docs-h2"><i data-lucide="map"></i> Loading Your Map</h2>
+                <div class="docs-list">
+                    <li>Export your map from the game or World Editor as an image (JPG, PNG) or texture (EDDS/DDS).</li>
+                    <li>Drag and drop the file onto the canvas area, or click the "Choose File" button.</li>
+                    <li>The editor will automatically center and fit your map image.</li>
+                </div>
+            </div>
+
+            <!-- Drawing Tools -->
+            <div class="docs-section">
+                <h1 class="docs-title">Tools & Controls</h1>
+
+                <h2 class="docs-h2"><i data-lucide="mouse-pointer-2"></i> Navigation</h2>
+                <p class="docs-p">
+                    Move around the map easily using these controls:
+                </p>
+                <div class="docs-list">
+                    <li><strong>Pan:</strong> Hold <span class="key-badge">Space</span> + Click & Drag, or Middle Mouse
+                        Button.</li>
+                    <li><strong>Zoom:</strong> Mouse Wheel to zoom in/out.</li>
+                    <li><strong>Fit View:</strong> Press <span class="key-badge">F</span> to reset view.</li>
+                </div>
+
+                <h2 class="docs-h2"><i data-lucide="pen-tool"></i> Drawing Zones</h2>
+                <p class="docs-p">Select a tool from the left toolbar to start drawing:</p>
+
+                <h3 class="docs-h3">Rectangle <span class="key-badge">R</span> & Circle <span class="key-badge">C</span>
+                </h3>
+                <p class="docs-p">Click and drag to create simple geometric shapes. Perfect for standard safe zones or
+                    circular objectives.</p>
+
+                <h3 class="docs-h3">Pen Tool <span class="key-badge">P</span></h3>
+                <p class="docs-p">
+                    Create complex custom polygons by placing anchor points.
+                </p>
+                <div class="docs-list">
+                    <li>Click to place a point.</li>
+                    <li>Click the starting point again (yellow highlight) to <strong
+                            style="color:var(--color-accent)">close the loop</strong>.</li>
+                    <li>Double-click to finish the shape without closing.</li>
+                    <li>Hold <span class="key-badge">S</span> or toggle Snapping to align point to grid.</li>
+                </div>
+
+                <h3 class="docs-h3">Freehand <span class="key-badge">D</span></h3>
+                <p class="docs-p">Draw organic shapes by clicking and dragging. The line will smooth out automatically
+                    when you release.</p>
+            </div>
+
+            <!-- Exporting -->
+            <div class="docs-section">
+                <h1 class="docs-title">Export & Import Workflow</h1>
+
+                <h2 class="docs-h2"><i data-lucide="package"></i> Feature: Workbench Plugin</h2>
+                <p class="docs-p">
+                    The most powerful way to get your zones into Arma Reforger. This generates a script that automates
+                    entity creation in the World Editor.
+                </p>
+
+                <h3 class="docs-h3">Step 1: Export</h3>
+                <p class="docs-p">
+                    1. Click <strong style="color:var(--color-accent)">Export</strong> in the top right.<br>
+                    2. Select <strong>Workbench Plugin (.c)</strong>.<br>
+                    3. Download the <code>ImportZonesPlugin.c</code> file.
+                </p>
+
+                <h3 class="docs-h3">Step 2: Install in Workbench</h3>
+                <p class="docs-p">
+                    1. Place the file in your mod's <code>scripts/WorkbenchGame/WorldEditor</code> folder.<br>
+                    2. Restart the Workbench if open.
+                </p>
+
+                <h3 class="docs-h3">Step 3: Run</h3>
+                <p class="docs-p">
+                    1. Open your world in World Editor.<br>
+                    2. Press <span class="key-badge">Ctrl</span> + <span class="key-badge">Shift</span> + <span
+                        class="key-badge">I</span> (or find "Import Zones" in the Plugins menu).<br>
+                    3. The script will automatically create <strong>Trigger Entities</strong> for all your zones with
+                    correct names, positions, and shapes!
+                </p>
+
+                <hr style="border:0; border-top:1px solid var(--color-border); margin: 30px 0;">
+
+                <h2 class="docs-h2"><i data-lucide="code"></i> Option 2: Game Mode Component</h2>
+                <p class="docs-p">
+                    Use this if you prefer a code-only approach without placing entities in the world.
+                </p>
+                <div class="docs-list">
+                    <li>Select <strong>EnfusionScript (.c)</strong> export.</li>
+                    <li>Download <code>SCR_ZoneManagerComponent.c</code>.</li>
+                    <li>Place in your mod's <code>scripts/Game/GameMode</code> folder.</li>
+                    <li>In World Editor, add the <strong>SCR_ZoneManagerComponent</strong> to your
+                        <strong>SCR_BaseGameMode</strong> entity.</li>
+                </div>
+            </div>
+
+            <!-- Project Management -->
+            <div class="docs-section">
+                <h1 class="docs-title">Project Management</h1>
+                <p class="docs-p">
+                    Don't lose your work! You can save your entire session to a JSON file.
+                </p>
+                <div class="docs-list">
+                    <li><i data-lucide="save"></i> <strong>Save Project:</strong> Downloads a `.json` file containing
+                        all your zones, colors, and settings.</li>
+                    <li><i data-lucide="folder-open"></i> <strong>Load Project:</strong> Restore a previous session.
+                        Share this file with your team for collaboration.</li>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+
+</html>

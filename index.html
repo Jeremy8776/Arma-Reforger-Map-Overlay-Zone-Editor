@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="Create custom map overlays and zones for Arma Reforger servers. Draw safe zones, restricted areas, and export for World Editor.">
+    <title>Arma Reforger Map Overlay Zone Editor</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="index.css">
+</head>
+
+<body>
+    <div id="app">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-brand">
+                <div class="logo">
+                    <i data-lucide="layers"></i>
+                </div>
+                <h1>Zone Editor</h1>
+                <span class="version">v1.0</span>
+            </div>
+            <div class="header-info">
+                <div class="coords-display" id="coordsDisplay">
+                    <span class="coord-label">X:</span><span id="coordX">0000</span>
+                    <span class="coord-label">Y:</span><span id="coordY">0000</span>
+                </div>
+                <div class="map-info" id="mapInfo">No map loaded</div>
+            </div>
+            <div class="header-actions">
+                <button class="btn btn-secondary" id="btnUndo" title="Undo (Ctrl+Z)" disabled>
+                    <i data-lucide="undo-2"></i>
+                </button>
+                <button class="btn btn-secondary" id="btnRedo" title="Redo (Ctrl+Y)" disabled>
+                    <i data-lucide="redo-2"></i>
+                </button>
+                <div class="divider-vertical"></div>
+                <button class="btn btn-secondary" id="btnSaveProject" title="Save Project (.json)">
+                    <i data-lucide="save"></i>
+                </button>
+                <button class="btn btn-secondary" id="btnLoadProject" title="Load Project (.json)">
+                    <i data-lucide="folder-open"></i>
+                </button>
+                <input type="file" id="projectInput" accept=".json" hidden>
+                <button class="btn btn-primary" id="btnExport">
+                    <i data-lucide="download"></i>
+                    Export
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Toolbar -->
+            <aside class="toolbar">
+                <div class="tool-group">
+                    <span class="tool-group-label">Select</span>
+                    <button class="tool-btn active" data-tool="select" title="Select & Move (V)">
+                        <i data-lucide="mouse-pointer-2"></i>
+                    </button>
+                    <button class="tool-btn" data-tool="pan" title="Pan View (Space+Drag)">
+                        <i data-lucide="move"></i>
+                    </button>
+                </div>
+                <div class="tool-group">
+                    <span class="tool-group-label">Draw</span>
+                    <button class="tool-btn" data-tool="rectangle" title="Rectangle Zone (R)">
+                        <i data-lucide="square"></i>
+                    </button>
+                    <button class="tool-btn" data-tool="circle" title="Circle Zone (C)">
+                        <i data-lucide="circle"></i>
+                    </button>
+                    <button class="tool-btn" data-tool="line" title="Line Tool (L)">
+                        <i data-lucide="minus"></i>
+                    </button>
+                    <button class="tool-btn" data-tool="pen" title="Pen Tool - Click to add anchors (P)">
+                        <i data-lucide="pen-tool"></i>
+                    </button>
+                    <button class="tool-btn" data-tool="freehand" title="Freehand - Click and drag to draw (D)">
+                        <i data-lucide="pencil"></i>
+                    </button>
+                </div>
+                <div class="tool-group">
+                    <span class="tool-group-label">View</span>
+                    <button class="tool-btn" id="btnZoomIn" title="Zoom In (+)">
+                        <i data-lucide="zoom-in"></i>
+                    </button>
+                    <button class="tool-btn" id="btnZoomOut" title="Zoom Out (-)">
+                        <i data-lucide="zoom-out"></i>
+                    </button>
+                    <button class="tool-btn" id="btnFitView" title="Fit to View (F)">
+                        <i data-lucide="maximize"></i>
+                    </button>
+                    <div class="tool-separator"></div>
+                    <button class="tool-btn" id="btnToggleSnap" title="Toggle Grid Snapping (S)">
+                        <i data-lucide="grid"></i>
+                    </button>
+                </div>
+
+                <div style="margin-top: auto;">
+                    <a href="docs.html" class="tool-btn" title="Documentation">
+                        <i data-lucide="book-open"></i>
+                    </a>
+                </div>
+            </aside>
+
+            <!-- Canvas Area -->
+            <div class="canvas-container" id="canvasContainer">
+                <div class="upload-prompt" id="uploadPrompt">
+                    <div class="upload-icon">
+                        <i data-lucide="map" style="width: 64px; height: 64px;"></i>
+                    </div>
+                    <h2>Load Your Map</h2>
+                    <p>Upload an EDDS, DDS, PNG, or JPG file</p>
+                    <button class="btn btn-primary btn-large" id="btnUpload">
+                        <i data-lucide="upload-cloud"></i>
+                        Choose File
+                    </button>
+                    <input type="file" id="fileInput" accept=".edds,.dds,.png,.jpg,.jpeg" hidden>
+                    <span class="upload-hint">or drag and drop</span>
+                </div>
+                <canvas id="mapCanvas"></canvas>
+                <div class="zoom-indicator" id="zoomIndicator">100%</div>
+            </div>
+
+            <!-- Zone Panel -->
+            <aside class="zone-panel">
+                <div class="panel-section">
+                    <div class="panel-header">
+                        <h3>Zones</h3>
+                        <span class="zone-count" id="zoneCount">0</span>
+                    </div>
+                    <div class="zone-list" id="zoneList">
+                        <div class="empty-state">
+                            <p>No zones created yet</p>
+                            <p class="hint">Use the drawing tools to create zones</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel-section" id="zonePropertiesSection" style="display: none;">
+                    <div class="panel-header">
+                        <h3>Zone Properties</h3>
+                    </div>
+                    <div class="zone-properties">
+                        <div class="property-group">
+                            <label for="zoneName">Name</label>
+                            <input type="text" id="zoneName" placeholder="Zone name...">
+                        </div>
+                        <div class="property-group">
+                            <label for="zoneType">Type</label>
+                            <select id="zoneType">
+                                <option value="safe">Safe Zone</option>
+                                <option value="restricted">Restricted Area</option>
+                                <option value="pvp">PvP Zone</option>
+                                <option value="spawn">Spawn Area</option>
+                                <option value="objective">Objective</option>
+                                <option value="custom">Custom</option>
+                            </select>
+                        </div>
+                        <div class="property-group">
+                            <label for="zoneStyle">Border Style</label>
+                            <select id="zoneStyle">
+                                <option value="solid">Solid Line</option>
+                                <option value="dashed">Dashed Line</option>
+                                <option value="dotted">Dotted Line</option>
+                            </select>
+                        </div>
+                        <div class="property-group">
+                            <label for="zoneColor">Color</label>
+                            <div class="color-picker-row">
+                                <input type="color" id="zoneColor" value="#00ff88">
+                                <input type="range" id="zoneOpacity" min="10" max="90" value="40">
+                                <span id="opacityValue">40%</span>
+                            </div>
+                        </div>
+                        <div class="property-group">
+                            <label>Coordinates</label>
+                            <div class="coords-info" id="zoneCoords">
+                                <!-- Populated dynamically -->
+                            </div>
+                        </div>
+                        <div class="property-actions">
+                            <button class="btn btn-danger" id="btnDeleteZone">
+                                <i data-lucide="trash-2"></i>
+                                Delete Zone
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+        </main>
+    </div>
+
+    <!-- Export Modal -->
+    <div class="modal-overlay" id="exportModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>Export Zones</h2>
+                <button class="modal-close" id="btnCloseExport">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="export-options">
+                    <label class="export-option">
+                        <input type="radio" name="exportFormat" value="enfusion" checked>
+                        <div class="export-option-content">
+                            <span class="export-option-title">EnfusionScript (.c)</span>
+                            <span class="export-option-desc">Zone definitions for scripted mods</span>
+                        </div>
+                    </label>
+                    <label class="export-option">
+                        <input type="radio" name="exportFormat" value="json">
+                        <div class="export-option-content">
+                            <span class="export-option-title">JSON Config</span>
+                            <span class="export-option-desc">Universal format for mod integration</span>
+                        </div>
+                    </label>
+                    <label class="export-option">
+                        <input type="radio" name="exportFormat" value="image">
+                        <div class="export-option-content">
+                            <span class="export-option-title">Image Overlay (.png)</span>
+                            <span class="export-option-desc">Visual overlay for map display</span>
+                        </div>
+                    </label>
+                    <label class="export-option">
+                        <input type="radio" name="exportFormat" value="tiff">
+                        <div class="export-option-content">
+                            <span class="export-option-title">Image Overlay (.tiff)</span>
+                            <span class="export-option-desc">High-quality format for terrain builders</span>
+                        </div>
+                    </label>
+                    <label class="export-option">
+                        <input type="radio" name="exportFormat" value="workbench">
+                        <div class="export-option-content">
+                            <span class="export-option-title">Workbench Plugin (.c)</span>
+                            <span class="export-option-desc">Script to spawn entities in World Editor</span>
+                        </div>
+                    </label>
+                    <label class="export-option">
+                        <input type="radio" name="exportFormat" value="all">
+                        <div class="export-option-content">
+                            <span class="export-option-title">Export All Formats</span>
+                            <span class="export-option-desc">Download all formats as ZIP</span>
+                        </div>
+                    </label>
+                </div>
+
+                <div class="export-settings">
+                    <h4>Coordinate Settings</h4>
+                    <div class="setting-row">
+                        <label for="mapScale">Map Scale (meters per pixel)</label>
+                        <input type="number" id="mapScale" value="1" min="0.1" step="0.1">
+                    </div>
+                    <div class="setting-row">
+                        <label for="originOffset">Origin Offset (X, Y)</label>
+                        <div class="offset-inputs">
+                            <input type="number" id="originX" value="0" placeholder="X">
+                            <input type="number" id="originY" value="0" placeholder="Y">
+                        </div>
+                    </div>
+
+                    <h4>Enfusion Texture Settings</h4>
+                    <div class="setting-row">
+                        <label for="textureSuffix">Texture Suffix (for Workbench import)</label>
+                        <select id="textureSuffix">
+                            <option value="_A" selected>_A - Opacity Mask (recommended)</option>
+                            <option value="_BCR">_BCR - Base Color + Roughness</option>
+                            <option value="_BCA">_BCA - Base Color + Opacity</option>
+                            <option value="_BC">_BC - Base Color Only</option>
+                        </select>
+                    </div>
+                    <div class="setting-row">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="resizePow2" checked>
+                            Resize to power of 2 (recommended for Enfusion)
+                        </label>
+                    </div>
+                    <div class="setting-row">
+                        <label for="baseName">Export Filename</label>
+                        <input type="text" id="baseName" value="zone_overlay" placeholder="zone_overlay">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="btnCancelExport">Cancel</button>
+                <button class="btn btn-primary" id="btnConfirmExport">
+                    <i data-lucide="download"></i>
+                    Export
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/utif@3.1.0/UTIF.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/core/canvas-core.js"></script>
+    <script src="js/zones/zone-manager.js"></script>
+    <script src="js/zones/zone-renderer.js"></script>
+    <script src="js/tools/select-tool.js"></script>
+    <script src="js/tools/shape-tools.js"></script>
+    <script src="js/tools/path-tools.js"></script>
+    <script src="js/tools/tool-manager.js"></script>
+    <script src="js/core/event-handler.js"></script>
+    <script src="js/export-handler.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+        // Initialize icons after load
+        document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+        });
+    </script>
+</body>
+
+</html>
