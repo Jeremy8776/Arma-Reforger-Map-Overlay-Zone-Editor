@@ -4,34 +4,34 @@
 
 ![Version](https://img.shields.io/badge/version-1.0.0-blue.svg) ![License](https://img.shields.io/badge/license-MIT-green.svg) ![Arma Reforger](https://img.shields.io/badge/Reforger-Compatible-orange.svg)
 
-## 🎯 Overview
+## Overview
 
 The **Map Overlay Zone Editor** is a powerful web-based application designed to streamline the workflow for Arma Reforger modders and server owners. Instead of manually guessing coordinates or writing tedious scripts, you can visually draw your zones on top of your map image and export them directly into game-ready formats.
 
 Whether you need a simple **Safe Zone**, a complex **PvP Area**, or a custom **Objective Trigger**, this tool handles the math for you.
 
-## ✨ Key Features
+## Key Features
 
-### 🎨 Visual Design Tools
+### Visual Design Tools
 *   **Geometric Shapes**: Quickly place Circles and Rectangles for standard zones.
 *   **Pen Tool**: Create complex, organic, or strictly defined polygonal zones.
     *   *Features*: Loop closing, point manipulation, and visual feedback.
 *   **Grid Snapping**: toggleable grid system to simpler alignment (Hotkey: `S`).
 *   **Freehand Drawing**: For rough sketching or natural boundaries.
 
-### 🛠️ Powerful Exports
-*   **🔌 Workbench Plugin (`.c`)**:
+### Powerful Exports
+*   **Workbench Plugin (`.c`)**:
     *   Generates a custom plugin script for the **Arma Reforger Workbench**.
     *   Run the plugin to **automatically spawn Trigger Entities** in your World Editor with correct shapes, sizes, and names.
-*   **💻 Game Mode Component (`.c`)**:
+*   **Game Mode Component (`.c`)**:
     *   Exports a drop-in `SCR_ZoneManagerComponent` class.
     *   Attach to your Game Mode entity for immediate script-based access to zone data.
-*   **🖼️ Map Overlays**:
+*   **Map Overlays**:
     *   Export high-quality **TIFF** images to use as in-game map textures or UI overlays.
-*   **💾 Project Files**:
+*   **Project Files**:
     *   Save your entire session to `.json` and reload it anytime for collaboration or future edits.
 
-## 🚀 Workflow Guide
+## Workflow Guide
 
 ### 1. Visualizing
 1.  Export your map from Reforger (or use a satellite image).
@@ -45,7 +45,7 @@ Whether you need a simple **Safe Zone**, a complex **PvP Area**, or a custom **O
 3.  In the Reforger World Editor, press `Ctrl + Shift + I`.
 4.  *Magic!* Your zones appear as real entities in the world.
 
-## ⌨️ Shortcuts
+## Shortcuts
 
 | Action | Shortcut |
 | :--- | :--- |
@@ -58,7 +58,7 @@ Whether you need a simple **Safe Zone**, a complex **PvP Area**, or a custom **O
 | **Redo** | `Ctrl + Y` |
 | **Fit View** | `F` |
 
-## 📦 Installation / Usage
+## Installation / Usage
 
 1.  Clone this repository.
 2.  Open `index.html` in any modern web browser.
