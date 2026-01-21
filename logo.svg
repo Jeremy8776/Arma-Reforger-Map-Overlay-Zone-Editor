@@ -1,29 +1,30 @@
-<svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <!-- Background: Hexagon Shape -->
-  <path d="M100 10L186.6 60V160L100 210L13.4 160V60L100 10Z" fill="#1E1E1E" stroke="#333333" stroke-width="4"/>
-  
-  <!-- Tactical Grid -->
-  <path d="M13.4 60L186.6 60" stroke="#333333" stroke-width="2" stroke-opacity="0.5"/>
-  <path d="M13.4 110L186.6 110" stroke="#333333" stroke-width="2" stroke-opacity="0.5"/>
-  <path d="M13.4 160L186.6 160" stroke="#333333" stroke-width="2" stroke-opacity="0.5"/>
-  <path d="M56 35V185" stroke="#333333" stroke-width="2" stroke-opacity="0.5"/>
-  <path d="M100 10V210" stroke="#333333" stroke-width="2" stroke-opacity="0.5"/>
-  <path d="M144 35V185" stroke="#333333" stroke-width="2" stroke-opacity="0.5"/>
+<svg width="200" height="200" viewBox="0 0 200 220" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Group to center and ensure no stroke clipping -->
+  <g transform="translate(0, 0)">
+    <!-- Background: Hexagon Shape -->
+    <!-- Points: Top(100,10), TopRight(186.6,60), BotRight(186.6,160), Bot(100,210), BotLeft(13.4,160), TopLeft(13.4,60) -->
+    <path d="M100 10L186.6 60V160L100 210L13.4 160V60L100 10Z" fill="#1E1E1E" stroke="#333333" stroke-width="4"/>
+    
+    <!-- Tactical Grid -->
+    <path d="M13.4 60L186.6 60" stroke="#333333" stroke-width="2" stroke-opacity="0.5"/>
+    <path d="M13.4 110L186.6 110" stroke="#333333" stroke-width="2" stroke-opacity="0.5"/>
+    <path d="M13.4 160L186.6 160" stroke="#333333" stroke-width="2" stroke-opacity="0.5"/>
+    <path d="M56 35V185" stroke="#333333" stroke-width="2" stroke-opacity="0.5"/>
+    <path d="M100 10V210" stroke="#333333" stroke-width="2" stroke-opacity="0.5"/>
+    <path d="M144 35V185" stroke="#333333" stroke-width="2" stroke-opacity="0.5"/>
 
-  <!-- Stylized Map Zone (Polygon) -->
-  <path d="M70 80 L130 60 L145 110 L110 140 L60 120 Z" fill="#00ff9d" fill-opacity="0.1" stroke="#00ff9d" stroke-width="3" stroke-linejoin="round"/>
-  
-  <!-- Anchor Points -->
-  <circle cx="70" cy="80" r="3" fill="#00ff9d"/>
-  <circle cx="130" cy="60" r="3" fill="#00ff9d"/>
-  <circle cx="145" cy="110" r="3" fill="#00ff9d"/>
-  <circle cx="110" cy="140" r="3" fill="#ffaa00"/> <!-- Selected Point (Orange) -->
-  <circle cx="60" cy="120" r="3" fill="#00ff9d"/>
+    <!-- Stylized Map Zone (Polygon) -->
+    <path d="M70 80 L130 60 L145 110 L110 140 L60 120 Z" fill="#00ff9d" fill-opacity="0.1" stroke="#00ff9d" stroke-width="3" stroke-linejoin="round"/>
+    
+    <!-- Anchor Points -->
+    <circle cx="70" cy="80" r="3" fill="#00ff9d"/>
+    <circle cx="130" cy="60" r="3" fill="#00ff9d"/>
+    <circle cx="145" cy="110" r="3" fill="#00ff9d"/>
+    <circle cx="110" cy="140" r="3" fill="#ffaa00"/> <!-- Selected Point (Orange) -->
+    <circle cx="60" cy="120" r="3" fill="#00ff9d"/>
 
-  <!-- Technical Accents -->
-  <path d="M100 10L186.6 60" stroke="#00ff9d" stroke-width="2" stroke-opacity="0.5"/>
-  <path d="M13.4 160L100 210" stroke="#ffaa00" stroke-width="2" stroke-opacity="0.5"/>
-  
-  <!-- Text Label (Optional, maybe too small for favicons but good for README) -->
-  <!-- <text x="100" y="190" font-family="monospace" font-size="16" fill="#00ff9d" text-anchor="middle" letter-spacing="2">ZONE EDITOR</text> -->
+    <!-- Technical Accents -->
+    <path d="M100 10L186.6 60" stroke="#00ff9d" stroke-width="2" stroke-opacity="0.5"/>
+    <path d="M13.4 160L100 210" stroke="#ffaa00" stroke-width="2" stroke-opacity="0.5"/>
+  </g>
 </svg>
