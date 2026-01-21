@@ -40,9 +40,6 @@ class ExportHandler {
             case 'tiff':
                 this.exportTIFF(settings);
                 break;
-            case 'tiff':
-                this.exportTIFF(settings);
-                break;
             case 'workbench':
                 this.exportWorkbenchPlugin(transformedZones);
                 break;
@@ -58,16 +55,27 @@ class ExportHandler {
     transformZone(zone, scale, originX, originY) {
         const transformed = { ...zone };
 
-        if (zone.shape === 'circle') {
-            transformed.cx = zone.cx * scale + originX;
-            transformed.cy = zone.cy * scale + originY;
-            transformed.radius = zone.radius * scale;
+        // Scale and translate based on available properties
+        if (transformed.cx !== undefined) {
+            transformed.cx = (transformed.cx * scale) + originX;
+            transformed.cy = (transformed.cy * scale) + originY;
+            transformed.radius = transformed.radius * scale;
         }
 
-        if (zone.points) {
-            transformed.points = zone.points.map(p => ({
-                x: p.x * scale + originX,
-                y: p.y * scale + originY
+        if (transformed.x !== undefined) {
+            transformed.x = (transformed.x * scale) + originX;
+            transformed.y = (transformed.y * scale) + originY;
+        }
+
+        if (transformed.width !== undefined) {
+            transformed.width = transformed.width * scale;
+            transformed.height = transformed.height * scale;
+        }
+
+        if (transformed.points) {
+            transformed.points = transformed.points.map(p => ({
+                x: (p.x * scale) + originX,
+                y: (p.y * scale) + originY
             }));
         }
 
@@ -479,7 +487,43 @@ class ImportZonesPlugin : WorkbenchPlugin
         // We embed the data directly in the script to avoid file I/O issues in Workbench
         for (const zone of zones) {
             const typeStr = zone.type.toUpperCase();
-            script += `        CreateZone(api, "${this.escapeString(zone.name)}", "${zone.shape}", ${zone.cx.toFixed(2)}, ${zone.cy.toFixed(2)}, ${zone.radius.toFixed(2)}, "${typeStr}");\n`;
+
+            // Calculate center and radius/size based on shape type
+            let cx = 0, cy = 0, radius = 0, width = 0, height = 0;
+            let shapeType = "box"; // Default to box for non-circles
+
+            if (zone.shape === 'circle') {
+                cx = zone.cx;
+                cy = zone.cy;
+                radius = zone.radius;
+                shapeType = "circle";
+            } else if (zone.shape === 'rectangle') {
+                cx = zone.x + zone.width / 2;
+                cy = zone.y + zone.height / 2;
+                width = zone.width;
+                height = zone.height;
+                // Approximate radius for fallback
+                radius = Math.max(width, height) / 2;
+                shapeType = "box";
+            } else if (zone.points) {
+                // Polygon / Line / Freehand
+                const bounds = Utils.getPolygonBounds(zone.points);
+                if (bounds) {
+                    cx = bounds.x + bounds.width / 2;
+                    cy = bounds.y + bounds.height / 2;
+                    width = bounds.width;
+                    height = bounds.height;
+                    radius = Math.max(width, height) / 2;
+                }
+                shapeType = "box";
+            }
+
+            // Ensure values are numbers (handle undefined/NaN)
+            cx = (isFinite(cx)) ? cx : 0;
+            cy = (isFinite(cy)) ? cy : 0;
+            radius = (isFinite(radius)) ? radius : 1;
+
+            script += `        CreateZone(api, "${this.escapeString(zone.name)}", "${shapeType}", ${cx.toFixed(2)}, ${cy.toFixed(2)}, ${radius.toFixed(2)}, "${typeStr}");\n`;
         }
 
         script += `
@@ -500,15 +544,17 @@ class ImportZonesPlugin : WorkbenchPlugin
         // Set Name
         api.RenameEntity(source, name);
         
-        // Set Sphere Radius if it's a circle
+        // Set properties based on shape
         if (shape == "circle")
         {
             api.ModifyEntityKey(source, "SphereRadius", radius.ToString());
-            api.ModifyEntityKey(source, "Shape", "Sphere"); // Assuming standard trigger has Shape prop
+            api.ModifyEntityKey(source, "Shape", "Sphere");
         }
         else
         {
             api.ModifyEntityKey(source, "Shape", "Box");
+            // Set sphere radius as fallback/reference for visualization
+             api.ModifyEntityKey(source, "SphereRadius", radius.ToString());
         }
         
         Print("Created Zone: " + name);
