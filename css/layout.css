@@ -27,16 +27,16 @@
 }
 
 .logo {
-    width: 32px;
-    height: 32px;
+    width: auto;
+    height: 48px;
     color: var(--color-accent);
     filter: drop-shadow(0 0 8px var(--color-accent-glow));
 }
 
-.logo svg,
-.logo .lucide {
-    width: 100%;
+.logo img {
     height: 100%;
+    width: auto;
+    display: block;
 }
 
 .header-brand h1 {
