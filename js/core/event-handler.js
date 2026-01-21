@@ -101,15 +101,32 @@ class EventHandler {
     }
 
     onKeyDown(e) {
-        // Escape to cancel drawing
+        // Check if user is typing in an input field - if so, skip most shortcuts
+        const activeElement = document.activeElement;
+        const isTyping = activeElement && (
+            activeElement.tagName === 'INPUT' ||
+            activeElement.tagName === 'TEXTAREA' ||
+            activeElement.isContentEditable
+        );
+
+        // Escape to cancel drawing or blur input
         if (e.key === 'Escape') {
-            this.toolManager.cancelOperation();
+            if (isTyping) {
+                activeElement.blur();
+            } else {
+                this.toolManager.cancelOperation();
+            }
             return;
         }
 
-        // Delete selected zone
+        // Skip all other shortcuts if typing
+        if (isTyping) return;
+
+        // Delete selected zone (only when not typing)
         if ((e.key === 'Delete' || e.key === 'Backspace') && this.zoneManager.selectedZoneId) {
+            e.preventDefault();
             this.zoneManager.deleteZone(this.zoneManager.selectedZoneId);
+            return;
         }
 
         // Keyboard shortcuts for tools
@@ -121,6 +138,7 @@ class EventHandler {
                 case 'l': this.toolManager.setTool('line'); break;
                 case 'p': this.toolManager.setTool('pen'); break;
                 case 'd': this.toolManager.setTool('freehand'); break;
+                case 's': this.core.toggleSnap(); break;
                 case 'f': this.core.fitToView(); break;
                 case '=':
                 case '+': this.core.setZoom(0.1); break;

@@ -157,12 +157,38 @@
                         <div class="property-group">
                             <label for="zoneType">Type</label>
                             <select id="zoneType">
-                                <option value="safe">Safe Zone</option>
-                                <option value="restricted">Restricted Area</option>
-                                <option value="pvp">PvP Zone</option>
-                                <option value="spawn">Spawn Area</option>
-                                <option value="objective">Objective</option>
-                                <option value="custom">Custom</option>
+                                <optgroup label="Standard Zones">
+                                    <option value="safe">Safe Zone</option>
+                                    <option value="restricted">Restricted Area</option>
+                                    <option value="pvp">PvP Zone</option>
+                                    <option value="spawn">Spawn Area</option>
+                                    <option value="objective">Objective</option>
+                                    <option value="custom">Custom</option>
+                                </optgroup>
+                                <optgroup label="Military Markers">
+                                    <option value="mil_infantry">Infantry</option>
+                                    <option value="mil_motorized">Motorized</option>
+                                    <option value="mil_armor">Armor</option>
+                                    <option value="mil_recon">Recon</option>
+                                    <option value="mil_artillery">Artillery</option>
+                                    <option value="mil_mortar">Mortar</option>
+                                    <option value="mil_machinegun">Machine Gun</option>
+                                    <option value="mil_antitank">Anti-Tank</option>
+                                    <option value="mil_antiair">Anti-Air</option>
+                                    <option value="mil_sniper">Sniper</option>
+                                    <option value="mil_medical">Medical</option>
+                                    <option value="mil_supply">Supply</option>
+                                    <option value="mil_maintenance">Maintenance</option>
+                                    <option value="mil_hq">Headquarters</option>
+                                </optgroup>
+                                <optgroup label="Map Markers">
+                                    <option value="marker_flag">Flag</option>
+                                    <option value="marker_warning">Warning</option>
+                                    <option value="marker_waypoint">Waypoint</option>
+                                    <option value="marker_rally">Rally Point</option>
+                                    <option value="marker_attack">Attack</option>
+                                    <option value="marker_defend">Defend</option>
+                                </optgroup>
                             </select>
                         </div>
                         <div class="property-group">
@@ -174,13 +200,51 @@
                             </select>
                         </div>
                         <div class="property-group">
-                            <label for="zoneColor">Color</label>
+                            <label for="zoneColor">Zone Color</label>
                             <div class="color-picker-row">
                                 <input type="color" id="zoneColor" value="#00ff88">
                                 <input type="range" id="zoneOpacity" min="10" max="90" value="40">
                                 <span id="opacityValue">40%</span>
                             </div>
                         </div>
+
+                        <!-- Label Styling Section -->
+                        <div class="property-group-header">
+                            <span>Label Settings</span>
+                        </div>
+                        <div class="property-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="showLabel" checked>
+                                <span>Show Label</span>
+                            </label>
+                        </div>
+                        <div class="property-group label-options">
+                            <label for="labelColor">Label Color</label>
+                            <input type="color" id="labelColor" value="#ffffff">
+                        </div>
+                        <div class="property-group label-options">
+                            <label for="labelBgColor">Backdrop Color</label>
+                            <div class="color-picker-row">
+                                <input type="color" id="labelBgColor" value="#000000">
+                                <input type="range" id="labelBgOpacity" min="0" max="100" value="70">
+                                <span id="labelBgOpacityValue">70%</span>
+                            </div>
+                        </div>
+                        <div class="property-group label-options">
+                            <label for="labelSize">Label Size</label>
+                            <select id="labelSize">
+                                <option value="small">Small</option>
+                                <option value="medium" selected>Medium</option>
+                                <option value="large">Large</option>
+                            </select>
+                        </div>
+                        <div class="property-group label-options">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="labelShadow">
+                                <span>Text Shadow</span>
+                            </label>
+                        </div>
+
                         <div class="property-group">
                             <label>Coordinates</label>
                             <div class="coords-info" id="zoneCoords">
@@ -389,6 +453,7 @@
     <script src="js/tools/tool-manager.js"></script>
     <script src="js/core/event-handler.js"></script>
     <script src="js/export-handler.js"></script>
+    <script src="js/context-menu.js"></script>
     <script src="js/app.js"></script>
     <script>
         // Initialize icons after load

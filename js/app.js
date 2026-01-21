@@ -49,6 +49,15 @@ class ZoneEditorApp {
             zoneCoords: document.getElementById('zoneCoords'),
             btnDeleteZone: document.getElementById('btnDeleteZone'),
 
+            // Label styling
+            showLabel: document.getElementById('showLabel'),
+            labelColor: document.getElementById('labelColor'),
+            labelBgColor: document.getElementById('labelBgColor'),
+            labelBgOpacity: document.getElementById('labelBgOpacity'),
+            labelBgOpacityValue: document.getElementById('labelBgOpacityValue'),
+            labelSize: document.getElementById('labelSize'),
+            labelShadow: document.getElementById('labelShadow'),
+
             // Export modal
             exportModal: document.getElementById('exportModal'),
             btnCloseExport: document.getElementById('btnCloseExport'),
@@ -64,15 +73,6 @@ class ZoneEditorApp {
             btnToggleSnap: document.getElementById('btnToggleSnap'),
             invertY: document.getElementById('invertY')
         };
-        // ... (existing code omitted for brevity/tool limitations, I have to be careful not to delete the constructor block, asking to replace small chunks or whole block)
-        // I will split this into two calls for safety as the file is large and elements is far from calibration logic.
-
-        // Actually, I can do it in one go if I just target the relevant methods if they were close, but they are not.
-        // Let's do `this.elements` first, then the methods.
-        // Wait, I can't do multiple replace calls in parallel on the same file in one turn easily if they overlap or if I need to read first. I have the file content.
-        // `js/app.js` was read in full in step 16.
-
-        // Let's execute the `this.elements` update.
 
 
         // Initialize Core Modules
@@ -89,12 +89,13 @@ class ZoneEditorApp {
         this.renderer = new ZoneRenderer(this.core, this.zoneManager);
 
         // Initialize Export Handler
-        this.exportHandler = new ExportHandler(this.core, this.zoneManager);
+        this.exportHandler = new ExportHandler(this.core, this.zoneManager, this.renderer);
 
         // State
         this.history = [];
         this.historyIndex = -1;
         this.maxHistory = 50;
+        this.selectedZoneIds = []; // For multi-select
 
         this.zoomTimeout = null;
 
@@ -102,6 +103,9 @@ class ZoneEditorApp {
     }
 
     init() {
+        // Initialize Context Menu
+        this.contextMenu = new ContextMenu(this);
+
         this.setupEventListeners();
         this.setupCallbacks();
         this.setupDragAndDrop();
@@ -133,6 +137,27 @@ class ZoneEditorApp {
             this.updateZoneList();
             this.updateUI();
         };
+
+        // Select tool - save history after dragging
+        if (this.toolManager.tools.select) {
+            this.toolManager.tools.select.onDragComplete = () => {
+                this.saveHistory();
+            };
+        }
+
+        // Canvas right-click context menu
+        this.elements.canvas.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            const pos = this.core.getMousePos(e);
+            const mapPos = this.core.screenToMap(pos.x, pos.y);
+            const zone = this.zoneManager.findZoneAtPoint(mapPos, this.core.zoom);
+
+            if (zone) {
+                this.zoneManager.selectZone(zone.id);
+            }
+
+            this.contextMenu.showForCanvas(e, zone);
+        });
 
         // Core events
         this.core.onCoordsChanged = (x, y) => {
@@ -231,9 +256,38 @@ class ZoneEditorApp {
         });
         this.elements.btnDeleteZone.addEventListener('click', () => this.deleteSelectedZone());
 
+        // Label styling events
+        this.elements.showLabel.addEventListener('change', () => {
+            this.updateLabelOptionsVisibility();
+            this.updateSelectedZone();
+        });
+        this.elements.labelColor.addEventListener('input', () => this.updateSelectedZone());
+        this.elements.labelBgColor.addEventListener('input', () => this.updateSelectedZone());
+        this.elements.labelBgOpacity.addEventListener('input', () => {
+            this.elements.labelBgOpacityValue.textContent = this.elements.labelBgOpacity.value + '%';
+            this.updateSelectedZone();
+        });
+        this.elements.labelSize.addEventListener('change', () => this.updateSelectedZone());
+        this.elements.labelShadow.addEventListener('change', () => this.updateSelectedZone());
+
         // Keyboard shortcuts
         document.addEventListener('keydown', (e) => {
+            // Check if typing in input
+            const activeElement = document.activeElement;
+            const isTyping = activeElement && (
+                activeElement.tagName === 'INPUT' ||
+                activeElement.tagName === 'TEXTAREA' ||
+                activeElement.isContentEditable
+            );
+
+            if (isTyping) return;
+
             if (e.ctrlKey || e.metaKey) {
+                // Let context menu handle copy/paste/duplicate
+                if (this.contextMenu && this.contextMenu.handleKeyboard(e)) {
+                    return;
+                }
+
                 if (e.key === 'z') {
                     e.preventDefault();
                     if (e.shiftKey) {
@@ -360,10 +414,30 @@ class ZoneEditorApp {
 
         // Add click handlers
         this.elements.zoneList.querySelectorAll('.zone-item').forEach(item => {
+            // Left click - select (with shift for multi-select)
             item.addEventListener('click', (e) => {
                 if (!e.target.closest('.zone-visibility')) {
-                    this.zoneManager.selectZone(item.dataset.zoneId);
+                    if (e.shiftKey && this.zoneManager.selectedZoneId) {
+                        // Shift+click: toggle multi-select
+                        const zoneId = item.dataset.zoneId;
+                        const index = this.selectedZoneIds.indexOf(zoneId);
+                        if (index === -1) {
+                            this.selectedZoneIds.push(zoneId);
+                        } else {
+                            this.selectedZoneIds.splice(index, 1);
+                        }
+                        this.updateZoneListSelection();
+                    } else {
+                        // Normal click: single select
+                        this.selectedZoneIds = [];
+                        this.zoneManager.selectZone(item.dataset.zoneId);
+                    }
                 }
+            });
+
+            // Right click - context menu
+            item.addEventListener('contextmenu', (e) => {
+                this.contextMenu.showForZoneItem(e, item.dataset.zoneId);
             });
         });
 
@@ -386,7 +460,12 @@ class ZoneEditorApp {
 
     updateZoneListSelection() {
         this.elements.zoneList.querySelectorAll('.zone-item').forEach(item => {
-            item.classList.toggle('selected', item.dataset.zoneId === this.zoneManager.selectedZoneId);
+            const zoneId = item.dataset.zoneId;
+            const isSelected = zoneId === this.zoneManager.selectedZoneId;
+            const isMultiSelected = this.selectedZoneIds.includes(zoneId);
+
+            item.classList.toggle('selected', isSelected);
+            item.classList.toggle('multi-selected', isMultiSelected && !isSelected);
         });
     }
 
@@ -408,10 +487,23 @@ class ZoneEditorApp {
         this.elements.zoneOpacity.value = zone.opacity * 100;
         this.elements.opacityValue.textContent = Math.round(zone.opacity * 100) + '%';
 
+        // Label styling
+        this.elements.showLabel.checked = zone.showLabel !== false; // Default to true
+        this.elements.labelColor.value = zone.labelColor || '#ffffff';
+        this.elements.labelBgColor.value = zone.labelBgColor || '#000000';
+        this.elements.labelBgOpacity.value = (zone.labelBgOpacity !== undefined ? zone.labelBgOpacity * 100 : 70);
+        this.elements.labelBgOpacityValue.textContent = this.elements.labelBgOpacity.value + '%';
+        this.elements.labelSize.value = zone.labelSize || 'medium';
+        this.elements.labelShadow.checked = zone.labelShadow || false;
+
+        this.updateLabelOptionsVisibility();
+
         // Show coordinates
         let coordsHtml = '';
         if (zone.shape === 'circle') {
             coordsHtml = `Center: (${zone.cx.toFixed(1)}, ${zone.cy.toFixed(1)})<br>Radius: ${zone.radius.toFixed(1)}`;
+        } else if (zone.shape === 'rectangle') {
+            coordsHtml = `Position: (${zone.x.toFixed(1)}, ${zone.y.toFixed(1)})<br>Size: ${zone.width.toFixed(1)} × ${zone.height.toFixed(1)}`;
         } else if (zone.shape === 'line') {
             coordsHtml = `Start: (${zone.x1.toFixed(1)}, ${zone.y1.toFixed(1)})<br>End: (${zone.x2.toFixed(1)}, ${zone.y2.toFixed(1)})`;
         } else if (zone.points) {
@@ -422,6 +514,14 @@ class ZoneEditorApp {
         this.elements.zoneCoords.innerHTML = coordsHtml;
     }
 
+    updateLabelOptionsVisibility() {
+        const showLabel = this.elements.showLabel.checked;
+        document.querySelectorAll('.label-options').forEach(el => {
+            el.style.opacity = showLabel ? '1' : '0.4';
+            el.style.pointerEvents = showLabel ? 'auto' : 'none';
+        });
+    }
+
     updateSelectedZone() {
         if (!this.zoneManager.selectedZoneId) return;
 
@@ -430,8 +530,25 @@ class ZoneEditorApp {
             type: this.elements.zoneType.value,
             style: this.elements.zoneStyle.value || 'solid',
             color: this.elements.zoneColor.value,
-            opacity: parseInt(this.elements.zoneOpacity.value) / 100
+            opacity: parseInt(this.elements.zoneOpacity.value) / 100,
+            // Label styling
+            showLabel: this.elements.showLabel.checked,
+            labelColor: this.elements.labelColor.value,
+            labelBgColor: this.elements.labelBgColor.value,
+            labelBgOpacity: parseInt(this.elements.labelBgOpacity.value) / 100,
+            labelSize: this.elements.labelSize.value,
+            labelShadow: this.elements.labelShadow.checked
         });
+
+        // The updateZone call above might have changed data (e.g. auto color)
+        // We need to refresh the UI inputs if the underlying data changed differently than our inputs
+        // This is handled by onZoneUpdated -> updateZoneList, but we also need to update Properties Panel inputs
+        // because updateZoneList only updates the list items.
+
+        const zone = this.zoneManager.getSelectedZone();
+        if (zone) {
+            this.showZoneProperties(zone);
+        }
 
         this.updateZoneList();
     }
@@ -646,9 +763,8 @@ class ZoneEditorApp {
 
             // Get coords from CanvasCore
             const rect = this.core.canvas.getBoundingClientRect();
-            const scale = this.core.transform.scale;
-            const x = (e.clientX - rect.left - this.core.transform.x) / scale;
-            const y = (e.clientY - rect.top - this.core.transform.y) / scale;
+            const x = (e.clientX - rect.left - this.core.panX) / this.core.zoom;
+            const y = (e.clientY - rect.top - this.core.panY) / this.core.zoom;
 
             this.handlePickResult(x, y);
 

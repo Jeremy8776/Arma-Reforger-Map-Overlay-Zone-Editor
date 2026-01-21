@@ -50,6 +50,12 @@ class ZoneRenderer {
                 ctx.arc(zone.cx, zone.cy, zone.radius, 0, Math.PI * 2);
                 ctx.fill();
                 ctx.stroke();
+            } else if (zone.shape === 'rectangle') {
+                // Rectangles have x, y, width, height properties
+                ctx.beginPath();
+                ctx.rect(zone.x, zone.y, zone.width, zone.height);
+                ctx.fill();
+                ctx.stroke();
             } else if (zone.shape === 'line') {
                 // Lines are rendered as thick strokes
                 ctx.lineWidth = (isSelected ? 6 : isHovered ? 5 : 4) / this.core.zoom;
@@ -90,12 +96,18 @@ class ZoneRenderer {
     }
 
     drawZoneLabel(zone) {
+        // Check if label should be shown
+        if (zone.showLabel === false) return;
+
         const ctx = this.core.ctx;
         let centerX, centerY;
 
         if (zone.shape === 'circle') {
             centerX = zone.cx;
             centerY = zone.cy;
+        } else if (zone.shape === 'rectangle') {
+            centerX = zone.x + zone.width / 2;
+            centerY = zone.y + zone.height / 2;
         } else if (zone.shape === 'line') {
             centerX = (zone.x1 + zone.x2) / 2;
             centerY = (zone.y1 + zone.y2) / 2;
@@ -107,23 +119,70 @@ class ZoneRenderer {
             return;
         }
 
-        const fontSize = Math.max(12 / this.core.zoom, 10);
+        // Calculate font size based on labelSize setting
+        let baseFontSize;
+        switch (zone.labelSize) {
+            case 'small': baseFontSize = 10; break;
+            case 'large': baseFontSize = 18; break;
+            default: baseFontSize = 14; break; // medium
+        }
+        const fontSize = Math.max(baseFontSize / this.core.zoom, baseFontSize * 0.7);
         ctx.font = `600 ${fontSize}px Rajdhani, sans-serif`;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
 
-        // Background
+        // Background/Backdrop
         const textMetrics = ctx.measureText(zone.name);
         const padding = 4 / this.core.zoom;
         const bgWidth = textMetrics.width + padding * 2;
         const bgHeight = fontSize + padding * 2;
 
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-        ctx.fillRect(centerX - bgWidth / 2, centerY - bgHeight / 2, bgWidth, bgHeight);
+        // Use zone's backdrop settings
+        const bgOpacity = zone.labelBgOpacity !== undefined ? zone.labelBgOpacity : 0.7;
+        const bgColor = zone.labelBgColor || '#000000';
+
+        if (bgOpacity > 0) {
+            ctx.fillStyle = Utils.hexToRgba(bgColor, bgOpacity);
+            // Add rounded corners for a more polished look
+            const radius = 3 / this.core.zoom;
+            this.roundRect(ctx, centerX - bgWidth / 2, centerY - bgHeight / 2, bgWidth, bgHeight, radius);
+            ctx.fill();
+        }
+
+        // Text Shadow
+        if (zone.labelShadow) {
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.8)';
+            ctx.shadowBlur = 4 / this.core.zoom;
+            ctx.shadowOffsetX = 1 / this.core.zoom;
+            ctx.shadowOffsetY = 1 / this.core.zoom;
+        }
 
         // Text
-        ctx.fillStyle = '#ffffff';
+        ctx.fillStyle = zone.labelColor || '#ffffff';
         ctx.fillText(zone.name, centerX, centerY);
+
+        // Reset shadow
+        ctx.shadowColor = 'transparent';
+        ctx.shadowBlur = 0;
+        ctx.shadowOffsetX = 0;
+        ctx.shadowOffsetY = 0;
+    }
+
+    /**
+     * Draw a rounded rectangle
+     */
+    roundRect(ctx, x, y, width, height, radius) {
+        ctx.beginPath();
+        ctx.moveTo(x + radius, y);
+        ctx.lineTo(x + width - radius, y);
+        ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+        ctx.lineTo(x + width, y + height - radius);
+        ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+        ctx.lineTo(x + radius, y + height);
+        ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+        ctx.lineTo(x, y + radius);
+        ctx.quadraticCurveTo(x, y, x + radius, y);
+        ctx.closePath();
     }
 
     drawSelection() {
@@ -153,6 +212,21 @@ class ZoneRenderer {
                 { x: zone.cx - zone.radius, y: zone.cy },
                 { x: zone.cx, y: zone.cy + zone.radius },
                 { x: zone.cx, y: zone.cy - zone.radius }
+            ];
+
+            for (const handle of handles) {
+                ctx.beginPath();
+                ctx.rect(handle.x - handleSize / 2, handle.y - handleSize / 2, handleSize, handleSize);
+                ctx.fill();
+                ctx.stroke();
+            }
+        } else if (zone.shape === 'rectangle') {
+            // Draw handles at corners
+            const handles = [
+                { x: zone.x, y: zone.y },
+                { x: zone.x + zone.width, y: zone.y },
+                { x: zone.x + zone.width, y: zone.y + zone.height },
+                { x: zone.x, y: zone.y + zone.height }
             ];
 
             for (const handle of handles) {
@@ -315,6 +389,11 @@ class ZoneRenderer {
             if (zone.shape === 'circle') {
                 ctx.beginPath();
                 ctx.arc(zone.cx, zone.cy, zone.radius, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.stroke();
+            } else if (zone.shape === 'rectangle') {
+                ctx.beginPath();
+                ctx.rect(zone.x, zone.y, zone.width, zone.height);
                 ctx.fill();
                 ctx.stroke();
             } else if (zone.shape === 'line') {

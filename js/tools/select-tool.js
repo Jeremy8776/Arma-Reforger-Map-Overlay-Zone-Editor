@@ -12,6 +12,10 @@ class SelectTool {
         this.draggedHandleIndex = -1;
         this.dragStart = null;
         this.dragOffset = { x: 0, y: 0 };
+        this.hasDragged = false; // Track if actual dragging occurred
+
+        // Callback for history save
+        this.onDragComplete = null;
     }
 
     onDown(mapPos) {
@@ -39,6 +43,11 @@ class SelectTool {
                     this.dragOffset = {
                         x: mapPos.x - zone.cx,
                         y: mapPos.y - zone.cy
+                    };
+                } else if (zone.shape === 'rectangle') {
+                    this.dragOffset = {
+                        x: mapPos.x - zone.x,
+                        y: mapPos.y - zone.y
                     };
                 } else if (zone.points) {
                     const bounds = Utils.getPolygonBounds(zone.points);
@@ -78,11 +87,16 @@ class SelectTool {
     }
 
     onUp(mapPos) {
-        if (this.isDragging || this.isDraggingHandle) {
+        if ((this.isDragging || this.isDraggingHandle) && this.hasDragged) {
             // Trigger update callback
             const zone = this.manager.getSelectedZone();
             if (zone && this.manager.onZoneUpdated) {
                 this.manager.onZoneUpdated(zone);
+            }
+
+            // Trigger history save callback
+            if (this.onDragComplete) {
+                this.onDragComplete();
             }
         }
 
@@ -90,6 +104,7 @@ class SelectTool {
         this.isDraggingHandle = false;
         this.draggedHandleIndex = -1;
         this.dragStart = null;
+        this.hasDragged = false;
     }
 
     cancel() {
@@ -120,6 +135,20 @@ class SelectTool {
                     return i;
                 }
             }
+        } else if (zone.shape === 'rectangle') {
+            // Corners: 0=topLeft, 1=topRight, 2=bottomRight, 3=bottomLeft
+            const handles = [
+                { x: zone.x, y: zone.y },
+                { x: zone.x + zone.width, y: zone.y },
+                { x: zone.x + zone.width, y: zone.y + zone.height },
+                { x: zone.x, y: zone.y + zone.height }
+            ];
+            for (let i = 0; i < handles.length; i++) {
+                if (Math.abs(point.x - handles[i].x) < handleSize &&
+                    Math.abs(point.y - handles[i].y) < handleSize) {
+                    return i;
+                }
+            }
         } else if (zone.points) {
             for (let i = 0; i < zone.points.length; i++) {
                 if (Math.abs(point.x - zone.points[i].x) < handleSize &&
@@ -136,8 +165,36 @@ class SelectTool {
         const zone = this.manager.getSelectedZone();
         if (!zone) return;
 
+        this.hasDragged = true;
+
         if (zone.shape === 'circle') {
             zone.radius = Utils.distance({ x: zone.cx, y: zone.cy }, mapPos);
+        } else if (zone.shape === 'rectangle' && this.draggedHandleIndex >= 0) {
+            // Resize rectangle from corners
+            const handleIndex = this.draggedHandleIndex;
+            const oldX = zone.x;
+            const oldY = zone.y;
+            const oldRight = zone.x + zone.width;
+            const oldBottom = zone.y + zone.height;
+
+            // 0=topLeft, 1=topRight, 2=bottomRight, 3=bottomLeft
+            if (handleIndex === 0) {
+                zone.x = Math.min(mapPos.x, oldRight - 5);
+                zone.y = Math.min(mapPos.y, oldBottom - 5);
+                zone.width = oldRight - zone.x;
+                zone.height = oldBottom - zone.y;
+            } else if (handleIndex === 1) {
+                zone.y = Math.min(mapPos.y, oldBottom - 5);
+                zone.width = Math.max(mapPos.x - oldX, 5);
+                zone.height = oldBottom - zone.y;
+            } else if (handleIndex === 2) {
+                zone.width = Math.max(mapPos.x - oldX, 5);
+                zone.height = Math.max(mapPos.y - oldY, 5);
+            } else if (handleIndex === 3) {
+                zone.x = Math.min(mapPos.x, oldRight - 5);
+                zone.width = oldRight - zone.x;
+                zone.height = Math.max(mapPos.y - oldY, 5);
+            }
         } else if (zone.points && this.draggedHandleIndex >= 0) {
             zone.points[this.draggedHandleIndex] = { x: mapPos.x, y: mapPos.y };
         }
@@ -147,12 +204,17 @@ class SelectTool {
         const zone = this.manager.getSelectedZone();
         if (!zone || !this.dragStart) return;
 
+        this.hasDragged = true;
+
         const dx = mapPos.x - this.dragStart.x;
         const dy = mapPos.y - this.dragStart.y;
 
         if (zone.shape === 'circle') {
             zone.cx += dx;
             zone.cy += dy;
+        } else if (zone.shape === 'rectangle') {
+            zone.x += dx;
+            zone.y += dy;
         } else if (zone.points) {
             for (const point of zone.points) {
                 point.x += dx;

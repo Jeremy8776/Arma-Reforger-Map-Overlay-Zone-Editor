@@ -148,12 +148,35 @@ const Utils = {
      */
     getZoneTypeName(type) {
         const types = {
+            // Standard zones
             'safe': 'Safe Zone',
             'restricted': 'Restricted',
             'pvp': 'PvP Zone',
             'spawn': 'Spawn Area',
             'objective': 'Objective',
-            'custom': 'Custom'
+            'custom': 'Custom',
+            // Military markers
+            'mil_infantry': 'Infantry',
+            'mil_motorized': 'Motorized',
+            'mil_armor': 'Armor',
+            'mil_recon': 'Recon',
+            'mil_artillery': 'Artillery',
+            'mil_mortar': 'Mortar',
+            'mil_machinegun': 'Machine Gun',
+            'mil_antitank': 'Anti-Tank',
+            'mil_antiair': 'Anti-Air',
+            'mil_sniper': 'Sniper',
+            'mil_medical': 'Medical',
+            'mil_supply': 'Supply',
+            'mil_maintenance': 'Maintenance',
+            'mil_hq': 'Headquarters',
+            // Map markers
+            'marker_flag': 'Flag',
+            'marker_warning': 'Warning',
+            'marker_waypoint': 'Waypoint',
+            'marker_rally': 'Rally Point',
+            'marker_attack': 'Attack',
+            'marker_defend': 'Defend'
         };
         return types[type] || type;
     },
@@ -163,12 +186,35 @@ const Utils = {
      */
     getZoneTypeColor(type) {
         const colors = {
+            // Standard zones
             'safe': '#00ff88',
             'restricted': '#ff4757',
             'pvp': '#ff6b35',
             'spawn': '#3498db',
             'objective': '#9b59b6',
-            'custom': '#f1c40f'
+            'custom': '#f1c40f',
+            // Military markers - NATO blue for friendly
+            'mil_infantry': '#4a90d9',
+            'mil_motorized': '#4a90d9',
+            'mil_armor': '#4a90d9',
+            'mil_recon': '#7cb342',
+            'mil_artillery': '#4a90d9',
+            'mil_mortar': '#4a90d9',
+            'mil_machinegun': '#4a90d9',
+            'mil_antitank': '#ff9800',
+            'mil_antiair': '#ff9800',
+            'mil_sniper': '#7cb342',
+            'mil_medical': '#e91e63',
+            'mil_supply': '#8d6e63',
+            'mil_maintenance': '#607d8b',
+            'mil_hq': '#ffd700',
+            // Map markers
+            'marker_flag': '#2196f3',
+            'marker_warning': '#ff5722',
+            'marker_waypoint': '#9c27b0',
+            'marker_rally': '#4caf50',
+            'marker_attack': '#f44336',
+            'marker_defend': '#2196f3'
         };
         return colors[type] || '#00ff88';
     },

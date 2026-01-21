@@ -4,9 +4,10 @@
  */
 
 class ExportHandler {
-    constructor(core, zoneManager) {
+    constructor(core, zoneManager, renderer) {
         this.core = core;
         this.zoneManager = zoneManager;
+        this.renderer = renderer;
     }
 
     /**
@@ -122,7 +123,29 @@ enum EZoneType
     PVP,
     SPAWN,
     OBJECTIVE,
-    CUSTOM
+    CUSTOM,
+    // Military Markers
+    MIL_INFANTRY,
+    MIL_MOTORIZED,
+    MIL_ARMOR,
+    MIL_RECON,
+    MIL_ARTILLERY,
+    MIL_MORTAR,
+    MIL_MACHINEGUN,
+    MIL_ANTITANK,
+    MIL_ANTIAIR,
+    MIL_SNIPER,
+    MIL_MEDICAL,
+    MIL_SUPPLY,
+    MIL_MAINTENANCE,
+    MIL_HQ,
+    // Map Markers
+    MARKER_FLAG,
+    MARKER_WARNING,
+    MARKER_WAYPOINT,
+    MARKER_RALLY,
+    MARKER_ATTACK,
+    MARKER_DEFEND
 }
 
 // Zone Definition Class
@@ -469,7 +492,29 @@ class SCR_ZoneManagerComponent: SCR_BaseGameModeComponent
             'pvp': 'EZoneType.PVP',
             'spawn': 'EZoneType.SPAWN',
             'objective': 'EZoneType.OBJECTIVE',
-            'custom': 'EZoneType.CUSTOM'
+            'custom': 'EZoneType.CUSTOM',
+            // Military markers
+            'mil_infantry': 'EZoneType.MIL_INFANTRY',
+            'mil_motorized': 'EZoneType.MIL_MOTORIZED',
+            'mil_armor': 'EZoneType.MIL_ARMOR',
+            'mil_recon': 'EZoneType.MIL_RECON',
+            'mil_artillery': 'EZoneType.MIL_ARTILLERY',
+            'mil_mortar': 'EZoneType.MIL_MORTAR',
+            'mil_machinegun': 'EZoneType.MIL_MACHINEGUN',
+            'mil_antitank': 'EZoneType.MIL_ANTITANK',
+            'mil_antiair': 'EZoneType.MIL_ANTIAIR',
+            'mil_sniper': 'EZoneType.MIL_SNIPER',
+            'mil_medical': 'EZoneType.MIL_MEDICAL',
+            'mil_supply': 'EZoneType.MIL_SUPPLY',
+            'mil_maintenance': 'EZoneType.MIL_MAINTENANCE',
+            'mil_hq': 'EZoneType.MIL_HQ',
+            // Map markers
+            'marker_flag': 'EZoneType.MARKER_FLAG',
+            'marker_warning': 'EZoneType.MARKER_WARNING',
+            'marker_waypoint': 'EZoneType.MARKER_WAYPOINT',
+            'marker_rally': 'EZoneType.MARKER_RALLY',
+            'marker_attack': 'EZoneType.MARKER_ATTACK',
+            'marker_defend': 'EZoneType.MARKER_DEFEND'
         };
         return types[type] || 'EZoneType.CUSTOM';
     }

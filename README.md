@@ -57,14 +57,22 @@ Whether you need a simple **Safe Zone**, a complex **PvP Area**, or a custom **O
 
 | Action | Shortcut |
 | :--- | :--- |
-| **Grid Snap** | `S` |
-| **Pen Tool** | `P` |
+| **Select Tool** | `V` |
 | **Rectangle** | `R` |
 | **Circle** | `C` |
+| **Line** | `L` |
+| **Pen Tool** | `P` |
 | **Freehand** | `D` |
-| **Undo** | `Ctrl + Z` |
-| **Redo** | `Ctrl + Y` |
+| **Grid Snap** | `S` |
 | **Fit View** | `F` |
+| **Zoom In/Out** | `+` / `-` |
+| **Undo** | `Ctrl + Z` |
+| **Redo** | `Ctrl + Y` or `Ctrl + Shift + Z` |
+| **Copy Zone** | `Ctrl + C` |
+| **Paste Zone** | `Ctrl + V` |
+| **Duplicate Zone** | `Ctrl + D` |
+| **Delete Zone** | `Delete` or `Backspace` |
+| **Export** | `Ctrl + E` |
 
 ## Installation / Usage
 

@@ -73,12 +73,16 @@ class ZoneManager {
     updateZone(id, updates) {
         const zoneIndex = this.zones.findIndex(z => z.id === id);
         if (zoneIndex !== -1) {
-            this.zones[zoneIndex] = { ...this.zones[zoneIndex], ...updates };
-
-            // Update color if type changed
-            if (updates.type) {
-                this.zones[zoneIndex].color = Utils.getZoneTypeColor(updates.type);
+            // Update color only if type changed
+            if (updates.type && updates.type !== this.zones[zoneIndex].type) {
+                // If the update doesn't explicitly contain a color (meaning it's just a type change from dropdown),
+                // OR if it does but we want to enforce type-color, we set it here.
+                // However, the UI currently sends current color value on type change event if not careful.
+                // To support "User selects type -> Auto color", we force it.
+                updates.color = Utils.getZoneTypeColor(updates.type);
             }
+
+            this.zones[zoneIndex] = { ...this.zones[zoneIndex], ...updates };
 
             if (this.onZoneUpdated) {
                 this.onZoneUpdated(this.zones[zoneIndex]);
@@ -131,6 +135,11 @@ class ZoneManager {
 
             if (zone.shape === 'circle') {
                 if (Utils.pointInCircle(point, { x: zone.cx, y: zone.cy }, zone.radius)) {
+                    return zone;
+                }
+            } else if (zone.shape === 'rectangle') {
+                // Check if point is inside rectangle
+                if (Utils.pointInRect(point, zone)) {
                     return zone;
                 }
             } else if (zone.shape === 'line') {
