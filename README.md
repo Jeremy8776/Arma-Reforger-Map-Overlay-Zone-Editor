@@ -1,8 +1,11 @@
-# Arma Reforger Map Overlay Zone Editor
+<div align="center">
+  <img src="assets/logo.svg" width="150" alt="Tactical Map Editor Logo" />
+  <h1>Arma Reforger Map Overlay Zone Editor</h1>
+  
+  <p><strong>The ultimate visual tool for designing, managing, and exporting map zones for Arma Reforger.</strong></p>
 
-> **The ultimate visual tool for designing, managing, and exporting map zones for Arma Reforger.**
-
-![Version](https://img.shields.io/badge/version-1.0.0-blue.svg) ![License](https://img.shields.io/badge/license-MIT-green.svg) ![Arma Reforger](https://img.shields.io/badge/Reforger-Compatible-orange.svg)
+  ![Version](https://img.shields.io/badge/version-1.0.0-blue.svg) ![License](https://img.shields.io/badge/license-MIT-green.svg) ![Arma Reforger](https://img.shields.io/badge/Reforger-Compatible-orange.svg)
+</div>
 
 ## Overview
 
