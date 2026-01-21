@@ -1,4 +1,4 @@
-<svg width="200" height="200" viewBox="0 0 200 220" fill="none" xmlns="http://www.w3.org/2000/svg">
+<svg width="200" height="200" viewBox="0 0 200 260" fill="none" xmlns="http://www.w3.org/2000/svg">
   <!-- Group to center and ensure no stroke clipping -->
   <g transform="translate(0, 0)">
     <!-- Background: Hexagon Shape -->
@@ -26,5 +26,8 @@
     <!-- Technical Accents -->
     <path d="M100 10L186.6 60" stroke="#00ff9d" stroke-width="2" stroke-opacity="0.5"/>
     <path d="M13.4 160L100 210" stroke="#ffaa00" stroke-width="2" stroke-opacity="0.5"/>
+    
+    <!-- Acronym Text -->
+    <text x="100" y="245" font-family="'Courier New', monospace" font-weight="bold" font-size="28" fill="#00ff9d" text-anchor="middle" letter-spacing="4" stroke="none">ARMOZE</text>
   </g>
 </svg>

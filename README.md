@@ -1,9 +1,11 @@
-# Arma Reforger Map Overlay Zone Editor
+# ARMOZE
 
 <div align="center">
-  <img src="logo.svg" alt="Zone Editor Logo" width="120" height="120">
+  <img src="logo.svg" alt="ARMOZE Logo" width="120" height="auto">
   <br>
-  <b>The ultimate visual tool for designing, managing, and exporting map zones for Arma Reforger.</b>
+  <b>Arma Reforger Map Overlay Zone Editor</b>
+  <br>
+  <i>The ultimate visual tool for designing, managing, and exporting map zones.</i>
 </div>
 
 <br>
@@ -12,7 +14,7 @@
 
 ## Overview
 
-The **Map Overlay Zone Editor** is a powerful web-based application designed to streamline the workflow for Arma Reforger modders and server owners. Instead of manually guessing coordinates or writing tedious scripts, you can visually draw your zones on top of your map image and export them directly into game-ready formats.
+**ARMOZE** is a powerful web-based application designed to streamline the workflow for Arma Reforger modders and server owners. Instead of manually guessing coordinates or writing tedious scripts, you can visually draw your zones on top of your map image and export them directly into game-ready formats.
 
 Whether you need a simple **Safe Zone**, a complex **PvP Area**, or a custom **Objective Trigger**, this tool handles the math for you.
 
