@@ -61,8 +61,19 @@ class ZoneEditorApp {
             textureSuffix: document.getElementById('textureSuffix'),
             resizePow2: document.getElementById('resizePow2'),
             baseName: document.getElementById('baseName'),
-            btnToggleSnap: document.getElementById('btnToggleSnap')
+            btnToggleSnap: document.getElementById('btnToggleSnap'),
+            invertY: document.getElementById('invertY')
         };
+        // ... (existing code omitted for brevity/tool limitations, I have to be careful not to delete the constructor block, asking to replace small chunks or whole block)
+        // I will split this into two calls for safety as the file is large and elements is far from calibration logic.
+
+        // Actually, I can do it in one go if I just target the relevant methods if they were close, but they are not.
+        // Let's do `this.elements` first, then the methods.
+        // Wait, I can't do multiple replace calls in parallel on the same file in one turn easily if they overlap or if I need to read first. I have the file content.
+        // `js/app.js` was read in full in step 16.
+
+        // Let's execute the `this.elements` update.
+
 
         // Initialize Core Modules
         this.core = new CanvasCore(this.elements.canvas, this.elements.canvasContainer);
@@ -94,6 +105,7 @@ class ZoneEditorApp {
         this.setupEventListeners();
         this.setupCallbacks();
         this.setupDragAndDrop();
+        this.setupCalibration();
         this.updateUI();
     }
 
@@ -535,6 +547,202 @@ class ZoneEditorApp {
     }
 
     // ========================================
+    // CALIBRATION TOOL
+    // ========================================
+
+    setupCalibration() {
+        // Elements
+        this.calElements = {
+            modal: document.getElementById('calibrationModal'),
+            icon: document.getElementById('btnOpenCalibration'),
+            btnClose: document.getElementById('btnCloseCalibration'),
+            btnCancel: document.getElementById('btnCancelCalibration'),
+            btnApply: document.getElementById('btnApplyCalibration'),
+
+            step1: document.getElementById('calStep1'),
+            step2: document.getElementById('calStep2'),
+            btnPick1: document.getElementById('btnPickPoint1'),
+            btnPick2: document.getElementById('btnPickPoint2'),
+
+            pt1Params: document.getElementById('pt1Params'),
+            pt2Params: document.getElementById('pt2Params'),
+
+            inputs: {
+                p1x: document.getElementById('pt1WorldX'),
+                p1y: document.getElementById('pt1WorldY'),
+                p2x: document.getElementById('pt2WorldX'),
+                p2y: document.getElementById('pt2WorldY')
+            }
+        };
+
+        this.calibrationState = {
+            active: false,
+            pickingStep: 0, // 1 or 2
+            p1: null, // {x, y} map coords
+            p2: null
+        };
+
+        // Event Listeners
+        this.calElements.icon.addEventListener('click', () => {
+            this.hideExportModal();
+            this.showCalibrationModal();
+        });
+
+        this.calElements.btnClose.addEventListener('click', () => this.hideCalibrationModal());
+        this.calElements.btnCancel.addEventListener('click', () => this.hideCalibrationModal());
+
+        this.calElements.btnPick1.addEventListener('click', () => this.startPicking(1));
+        this.calElements.btnPick2.addEventListener('click', () => this.startPicking(2));
+
+        this.calElements.btnApply.addEventListener('click', () => this.applyCalibration());
+
+        // Input validation to enable Apply button
+        Object.values(this.calElements.inputs).forEach(input => {
+            input.addEventListener('input', () => this.checkCalibrationReady());
+        });
+
+        // Global click handler for picking (delegated from canvas)
+        // We'll hook into the generic core onClick or handle it in specific handler
+        // For simplicity, we'll use a temporary event listener on the canvas container
+    }
+
+    showCalibrationModal() {
+        this.calElements.modal.classList.add('visible');
+        this.resetCalibrationUI();
+    }
+
+    hideCalibrationModal() {
+        this.calElements.modal.classList.remove('visible');
+        this.calibrationState.active = false;
+        this.calibrationState.pickingStep = 0;
+        document.body.style.cursor = 'default';
+        this.showExportModal(); // Return to export modal
+    }
+
+    resetCalibrationUI() {
+        this.calibrationState.p1 = null;
+        this.calibrationState.p2 = null;
+        this.calElements.pt1Params.textContent = '-';
+        this.calElements.pt2Params.textContent = '-';
+        this.calElements.inputs.p1x.value = '';
+        this.calElements.inputs.p1y.value = '';
+        this.calElements.inputs.p2x.value = '';
+        this.calElements.inputs.p2y.value = '';
+        this.checkCalibrationReady();
+    }
+
+    startPicking(step) {
+        this.calElements.modal.classList.remove('visible'); // Hide modal temporarily
+        this.calibrationState.active = true;
+        this.calibrationState.pickingStep = step;
+        document.body.style.cursor = 'crosshair';
+
+        // Add one-time click listener
+        const pickHandler = (e) => {
+            if (!this.calibrationState.active) return;
+
+            e.preventDefault();
+            e.stopPropagation();
+
+            // Get coords from CanvasCore
+            const rect = this.core.canvas.getBoundingClientRect();
+            const scale = this.core.transform.scale;
+            const x = (e.clientX - rect.left - this.core.transform.x) / scale;
+            const y = (e.clientY - rect.top - this.core.transform.y) / scale;
+
+            this.handlePickResult(x, y);
+
+            // Cleanup
+            this.core.canvas.removeEventListener('click', pickHandler);
+            document.body.style.cursor = 'default';
+        };
+
+        this.core.canvas.addEventListener('click', pickHandler, { once: true });
+    }
+
+    handlePickResult(x, y) {
+        const step = this.calibrationState.pickingStep;
+
+        if (step === 1) {
+            this.calibrationState.p1 = { x, y };
+            this.calElements.pt1Params.textContent = `${Math.round(x)}, ${Math.round(y)}`;
+        } else if (step === 2) {
+            this.calibrationState.p2 = { x, y };
+            this.calElements.pt2Params.textContent = `${Math.round(x)}, ${Math.round(y)}`;
+        }
+
+        this.calibrationState.active = false;
+        this.calibrationState.pickingStep = 0;
+        this.calElements.modal.classList.add('visible'); // Show modal again
+        this.checkCalibrationReady();
+    }
+
+    checkCalibrationReady() {
+        const p1Ready = this.calibrationState.p1 && this.calElements.inputs.p1x.value && this.calElements.inputs.p1y.value;
+        const p2Ready = this.calibrationState.p2 && this.calElements.inputs.p2x.value && this.calElements.inputs.p2y.value;
+
+        this.calElements.btnApply.disabled = !(p1Ready && p2Ready);
+    }
+
+    applyCalibration() {
+        // Calculate Scale and Origin
+        const mapP1 = this.calibrationState.p1;
+        const mapP2 = this.calibrationState.p2;
+
+        const worldP1 = {
+            x: parseFloat(this.calElements.inputs.p1x.value),
+            y: parseFloat(this.calElements.inputs.p1y.value)
+        };
+        const worldP2 = {
+            x: parseFloat(this.calElements.inputs.p2x.value),
+            y: parseFloat(this.calElements.inputs.p2y.value)
+        };
+
+        // Distance in Map Pixels
+        const distMap = Utils.distance(mapP1, mapP2);
+
+        // Distance in World Units
+        const distWorld = Utils.distance(worldP1, worldP2);
+
+        if (distMap < 1 || distWorld < 0.1) {
+            alert("Points are too close together to calibrate accurately.");
+            return;
+        }
+
+        // Scale = World Units per Pixel
+        const scale = distWorld / distMap;
+
+        // Origin Calculation
+        // Normal: WorldY = OriginY + (MapY * Scale)  => OriginY = WorldY - (MapY * Scale)
+        // Invert: WorldY = OriginY - (MapY * Scale)  => OriginY = WorldY + (MapY * Scale)
+
+        const invertY = this.elements.invertY.checked;
+
+        const originX1 = worldP1.x - (mapP1.x * scale);
+        const originX2 = worldP2.x - (mapP2.x * scale);
+
+        let originY1, originY2;
+
+        if (invertY) {
+            originY1 = worldP1.y + (mapP1.y * scale);
+            originY2 = worldP2.y + (mapP2.y * scale);
+        } else {
+            originY1 = worldP1.y - (mapP1.y * scale);
+            originY2 = worldP2.y - (mapP2.y * scale);
+        }
+
+        const originX = (originX1 + originX2) / 2;
+        const originY = (originY1 + originY2) / 2;
+
+        // Apply to Export Modal Inputs
+        this.elements.mapScale.value = scale.toFixed(4);
+        this.elements.originX.value = originX.toFixed(2);
+        this.elements.originY.value = originY.toFixed(2);
+
+        this.hideCalibrationModal();
+    }
+
+    // ========================================
     // EXPORT
     // ========================================
 
@@ -553,6 +761,7 @@ class ZoneEditorApp {
             mapScale: parseFloat(this.elements.mapScale.value) || 1,
             originX: parseFloat(this.elements.originX.value) || 0,
             originY: parseFloat(this.elements.originY.value) || 0,
+            invertY: this.elements.invertY.checked,
             // Enfusion texture settings (for image export)
             textureSuffix: this.elements.textureSuffix.value || '_A',
             resizeToPow2: this.elements.resizePow2.checked,

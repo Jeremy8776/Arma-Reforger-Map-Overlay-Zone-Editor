@@ -265,6 +265,21 @@
                             <input type="number" id="originY" value="0" placeholder="Y">
                         </div>
                     </div>
+                    <div class="setting-row">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="invertY" checked>
+                            Invert Y Axis (Screen Y ↓ vs World Z ↑)
+                        </label>
+                    </div>
+
+                    <div class="calibration-section">
+                        <small style="display: block; margin-bottom: 8px; color: var(--text-muted);">
+                            Don't know the exact offset? Use the calibration tool.
+                        </small>
+                        <button class="btn btn-secondary btn-small" id="btnOpenCalibration">
+                            <i data-lucide="crosshair"></i> Calibrate Map Logic
+                        </button>
+                    </div>
 
                     <h4>Enfusion Texture Settings</h4>
                     <div class="setting-row">
@@ -285,6 +300,69 @@
                     <div class="setting-row">
                         <label for="baseName">Export Filename</label>
                         <input type="text" id="baseName" value="zone_overlay" placeholder="zone_overlay">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Calibration Modal -->
+            <div class="modal-overlay" id="calibrationModal">
+                <div class="modal">
+                    <div class="modal-header">
+                        <h2>Map Calibration</h2>
+                        <button class="modal-close" id="btnCloseCalibration">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <p class="modal-description">
+                            Click two distinct points on the map image and enter their known in-game coordinates (e.g.
+                            from the World Editor).
+                        </p>
+
+                        <div class="calibration-step active" id="calStep1">
+                            <div class="step-header">
+                                <span class="step-number">1</span>
+                                <h4>First Point</h4>
+                            </div>
+                            <div class="step-content">
+                                <button class="btn btn-secondary" id="btnPickPoint1">
+                                    <i data-lucide="mouse-pointer-2"></i> Pick on Map
+                                </button>
+                                <div class="coord-inputs">
+                                    <label>Map (Px): <span id="pt1Params">-</span></label>
+                                    <label>World (Units):</label>
+                                    <div class="pair-input">
+                                        <input type="number" id="pt1WorldX" placeholder="World X">
+                                        <input type="number" id="pt1WorldY" placeholder="World Z/Y">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="calibration-step" id="calStep2">
+                            <div class="step-header">
+                                <span class="step-number">2</span>
+                                <h4>Second Point</h4>
+                            </div>
+                            <div class="step-content">
+                                <button class="btn btn-secondary" id="btnPickPoint2">
+                                    <i data-lucide="mouse-pointer-2"></i> Pick on Map
+                                </button>
+                                <div class="coord-inputs">
+                                    <label>Map (Px): <span id="pt2Params">-</span></label>
+                                    <label>World (Units):</label>
+                                    <div class="pair-input">
+                                        <input type="number" id="pt2WorldX" placeholder="World X">
+                                        <input type="number" id="pt2WorldY" placeholder="World Z/Y">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" id="btnCancelCalibration">Cancel</button>
+                        <button class="btn btn-primary" id="btnApplyCalibration" disabled>
+                            <i data-lucide="check"></i>
+                            Calculate & Apply
+                        </button>
                     </div>
                 </div>
             </div>

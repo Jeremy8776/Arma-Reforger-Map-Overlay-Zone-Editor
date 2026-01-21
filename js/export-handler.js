@@ -23,9 +23,11 @@ class ExportHandler {
         const scale = settings.mapScale || 1;
         const originX = settings.originX || 0;
         const originY = settings.originY || 0;
+        const invertY = settings.invertY !== false; // Default true if not specified? No, default false for safety.
+        // Actually, check what came from App. default is checked in HTML, so passing prop.
 
         // Transform coordinates based on settings
-        const transformedZones = zones.map(zone => this.transformZone(zone, scale, originX, originY));
+        const transformedZones = zones.map(zone => this.transformZone(zone, scale, originX, originY, settings.invertY));
 
         switch (format) {
             case 'enfusion':
@@ -52,30 +54,45 @@ class ExportHandler {
     /**
      * Transform zone coordinates based on map scale and origin
      */
-    transformZone(zone, scale, originX, originY) {
+    transformZone(zone, scale, originX, originY, invertY = false) {
         const transformed = { ...zone };
+
+        // Helper for Y coordinate
+        const transformY = (y) => {
+            if (invertY) {
+                return originY - (y * scale);
+            }
+            return (y * scale) + originY;
+        };
 
         // Scale and translate based on available properties
         if (transformed.cx !== undefined) {
             transformed.cx = (transformed.cx * scale) + originX;
-            transformed.cy = (transformed.cy * scale) + originY;
+            transformed.cy = transformY(transformed.cy);
             transformed.radius = transformed.radius * scale;
         }
 
         if (transformed.x !== undefined) {
             transformed.x = (transformed.x * scale) + originX;
-            transformed.y = (transformed.y * scale) + originY;
-        }
+            transformed.y = transformY(transformed.y);
 
-        if (transformed.width !== undefined) {
+            // Width/Height scalar is simple
             transformed.width = transformed.width * scale;
             transformed.height = transformed.height * scale;
+
+            // Handle rectangle corner cases with inversion
+            // When calculating bounds or corners, simple Y transformation might flip the rectangle "inside out" relative to top-left
+            // usage, but for simple center/points it's fine. 
+            // However, usually rects are defined by TopLeft in 2D. 
+            // In 3D (inverted), specific implementation depends on if 'y' is Top or Bottom.
+            // If invertY is true, 'y' (originally top) becomes a higher Z value (North), effectively "bottom" of the shape in 2D array logic but "top" in coords.
+            // But width/height are positive scalars.
         }
 
         if (transformed.points) {
             transformed.points = transformed.points.map(p => ({
                 x: (p.x * scale) + originX,
-                y: (p.y * scale) + originY
+                y: transformY(p.y)
             }));
         }
 
@@ -491,6 +508,7 @@ class ImportZonesPlugin : WorkbenchPlugin
             // Calculate center and radius/size based on shape type
             let cx = 0, cy = 0, radius = 0, width = 0, height = 0;
             let shapeType = "box"; // Default to box for non-circles
+            let pointsStr = "null";
 
             if (zone.shape === 'circle') {
                 cx = zone.cx;
@@ -515,24 +533,30 @@ class ImportZonesPlugin : WorkbenchPlugin
                     height = bounds.height;
                     radius = Math.max(width, height) / 2;
                 }
-                shapeType = "box";
+                shapeType = "spline";
+
+                // Construct encoded array string for points
+                // Format: "x,y,z|x,y,z|..."
+                pointsStr = `"${zone.points.map(p => `${p.x.toFixed(2)},0,${p.y.toFixed(2)}`).join('|')}"`;
             }
 
             // Ensure values are numbers (handle undefined/NaN)
             cx = (isFinite(cx)) ? cx : 0;
             cy = (isFinite(cy)) ? cy : 0;
             radius = (isFinite(radius)) ? radius : 1;
+            width = (isFinite(width)) ? width : 2;
+            height = (isFinite(height)) ? height : 2;
 
-            script += `        CreateZone(api, "${this.escapeString(zone.name)}", "${shapeType}", ${cx.toFixed(2)}, ${cy.toFixed(2)}, ${radius.toFixed(2)}, "${typeStr}");\n`;
+            script += `        CreateZone(api, "${this.escapeString(zone.name)}", "${shapeType}", ${cx.toFixed(2)}, ${cy.toFixed(2)}, ${radius.toFixed(2)}, ${width.toFixed(2)}, ${height.toFixed(2)}, "${typeStr}", ${pointsStr});\n`;
         }
 
         script += `
         api.EndEntityAction();
     }
     
-    void CreateZone(WorldEditorAPI api, string name, string shape, float x, float z, float radius, string type)
+    void CreateZone(WorldEditorAPI api, string name, string shape, float x, float z, float radius, float width, float length, string type, string pointsStr)
     {
-        // Create a Trigger Entity
+        // 1. Create the base Trigger Entity
         // Note: You may want to change "SCR_BaseTriggerEntity" to your specific custom trigger prefab if you have one
         IEntitySource source = api.CreateEntity("SCR_BaseTriggerEntity", "", api.GetWorld().GetRootEntitySource());
         
@@ -550,11 +574,62 @@ class ImportZonesPlugin : WorkbenchPlugin
             api.ModifyEntityKey(source, "SphereRadius", radius.ToString());
             api.ModifyEntityKey(source, "Shape", "Sphere");
         }
-        else
+        else if (shape == "box")
         {
             api.ModifyEntityKey(source, "Shape", "Box");
-            // Set sphere radius as fallback/reference for visualization
-             api.ModifyEntityKey(source, "SphereRadius", radius.ToString());
+            // Set Box Dimensions (Min/Max based on width/length)
+            // AABB centered at 0,0
+            string minStr = string.Format("%1 -1 %2", -width/2, -length/2);
+            string maxStr = string.Format("%1 1 %2", width/2, length/2);
+            
+            // Note: SCR_BaseTriggerEntity usually uses SphereRadius. 
+            // For proper Box triggers, we assume the Custom Shape logic or standard Trigger with Box shape.
+            // We set SphereRadius effectively creating a bounding sphere as fallback
+            api.ModifyEntityKey(source, "SphereRadius", radius.ToString()); 
+        }
+        else if (shape == "spline" && pointsStr != "null")
+        {
+            // For Splines, we create a separate SplineObject entity to visualize the path
+            // The trigger itself will remain a bounding sphere/box for activation logic
+            
+            api.ModifyEntityKey(source, "Shape", "Box");
+            api.ModifyEntityKey(source, "SphereRadius", radius.ToString());
+            
+            // Create separate Spline
+            IEntitySource splineSource = api.CreateEntity("SplineObject", "", api.GetWorld().GetRootEntitySource());
+            api.RenameEntity(splineSource, name + "_Shape");
+            
+            // Parse custom dot-separated points string
+            array<string> pointStrs = {};
+            pointsStr.Split("|", pointStrs);
+            
+            // Create Hierarchy: Spline -> Points
+            // Note: In Workbench, we can't easily iterate and create children in one go without parent context
+            // We set the spline position to the first point or center
+             splineSource.Set("coords", string.Format("%1 %2 %3", x, 0, z));
+            
+            foreach (string pStr : pointStrs)
+            {
+                array<string> coords = {};
+                pStr.Split(",", coords);
+                if (coords.Count() == 3)
+                {
+                    // Create Spline Point
+                    IEntitySource ptSource = api.CreateEntity("SplinePoint", "", splineSource);
+                    
+                    // Position is relative if parented, or absolute? 
+                    // In WB API, CreateEntity with parent usually handles hierarchy.
+                    // We'll treat coords as absolute world coords.
+                    
+                    vector ptPos = Vector(coords[0].ToFloat(), coords[1].ToFloat(), coords[2].ToFloat());
+                    
+                    // Calculate relative pos if needed, but world coords are safer for import
+                    ptSource.Set("coords", string.Format("%1 %2 %3", ptPos[0], ptPos[1], ptPos[2]));
+                }
+            }
+            
+            Print("Created Zone with Spline: " + name);
+            return;
         }
         
         Print("Created Zone: " + name);

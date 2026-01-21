@@ -18,44 +18,54 @@ const Utils = {
     async parseDDSFile(file) {
         const buffer = await file.arrayBuffer();
         const dataView = new DataView(buffer);
-        
+
         // Check for EDDS magic number (Enfusion specific)
         const magic = dataView.getUint32(0, true);
-        
+
         let offset = 0;
-        
+
         // EDDS files may have additional header
         if (magic === 0x53444445) { // 'EDDS' in little-endian
             // Skip EDDS header (typically 8 bytes)
             offset = 8;
         }
-        
+
         // Check for DDS magic ('DDS ')
         const ddsMagic = dataView.getUint32(offset, true);
         if (ddsMagic !== 0x20534444) {
             throw new Error('Invalid DDS file format');
         }
-        
+
         // Read DDS header
         const headerSize = dataView.getUint32(offset + 4, true);
-        const flags = dataView.getUint32(offset + 8, true);
         const height = dataView.getUint32(offset + 12, true);
         const width = dataView.getUint32(offset + 16, true);
-        
+        // const flags = dataView.getUint32(offset + 8, true); // unused
+
         // Read pixel format
-        const pfFlags = dataView.getUint32(offset + 80, true);
+        // const pfFlags = dataView.getUint32(offset + 80, true); // unused
         const fourCC = dataView.getUint32(offset + 84, true);
-        
-        // For basic DDS files, try to extract RGB data
-        // This is a simplified parser - full DDS support would need more formats
+        const fourCCString = this.getFourCCString(fourCC);
+
+        // Check for compressed formats which we can't handle in basic JS
+        // DXT1, DXT3, DXT5, BC4 (ATI1), BC5 (ATI2), DX10 (BC7 etc)
+        const compressedFormats = ['DXT1', 'DXT3', 'DXT5', 'ATI1', 'ATI2', 'DX10', 'BC7 '];
+        if (compressedFormats.includes(fourCCString) || fourCCString.trim() !== '') {
+            // If it has a FourCC, it's likely compressed or special format
+            // Unless it's empty/null (0), which usually means uncompressed RGBA in legacy DDS
+            // However, most modern tools write FourCC even for uncompressed. 
+            // We only support raw RGBA for now.
+            throw new Error(`Compressed DDS format (${fourCCString}) is not supported in browser. Please convert to PNG/JPG.`);
+        }
+
         const dataOffset = offset + 4 + headerSize;
         const imageData = new Uint8Array(buffer, dataOffset);
-        
+
         return {
             width,
             height,
             data: imageData,
-            format: this.getFourCCString(fourCC)
+            format: fourCCString
         };
     },
 
@@ -79,7 +89,7 @@ const Utils = {
         const { width, height, data } = ddsInfo;
         const imageData = new ImageData(width, height);
         const pixels = imageData.data;
-        
+
         // Assuming BGRA format (common in DDS)
         for (let i = 0, j = 0; i < data.length && j < pixels.length; i += 4, j += 4) {
             pixels[j] = data[i + 2];     // R (from B)
@@ -87,7 +97,7 @@ const Utils = {
             pixels[j + 2] = data[i];     // B (from R)
             pixels[j + 3] = data[i + 3] || 255; // A
         }
-        
+
         return imageData;
     },
 
@@ -114,11 +124,11 @@ const Utils = {
     hexToRgba(hex, opacity = 1) {
         const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
         if (!result) return null;
-        
+
         const r = parseInt(result[1], 16);
         const g = parseInt(result[2], 16);
         const b = parseInt(result[3], 16);
-        
+
         return `rgba(${r}, ${g}, ${b}, ${opacity})`;
     },
 
@@ -128,7 +138,7 @@ const Utils = {
     rgbaToHex(rgba) {
         const match = rgba.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
         if (!match) return '#000000';
-        
+
         const toHex = (n) => parseInt(n).toString(16).padStart(2, '0');
         return `#${toHex(match[1])}${toHex(match[2])}${toHex(match[3])}`;
     },
@@ -180,7 +190,7 @@ const Utils = {
         for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
             const xi = polygon[i].x, yi = polygon[i].y;
             const xj = polygon[j].x, yj = polygon[j].y;
-            
+
             if (((yi > point.y) !== (yj > point.y)) &&
                 (point.x < (xj - xi) * (point.y - yi) / (yj - yi) + xi)) {
                 inside = !inside;
@@ -194,9 +204,9 @@ const Utils = {
      */
     pointInRect(point, rect) {
         return point.x >= rect.x &&
-               point.x <= rect.x + rect.width &&
-               point.y >= rect.y &&
-               point.y <= rect.y + rect.height;
+            point.x <= rect.x + rect.width &&
+            point.y >= rect.y &&
+            point.y <= rect.y + rect.height;
     },
 
     /**
@@ -211,17 +221,17 @@ const Utils = {
      */
     getPolygonBounds(points) {
         if (!points || points.length === 0) return null;
-        
+
         let minX = Infinity, minY = Infinity;
         let maxX = -Infinity, maxY = -Infinity;
-        
+
         for (const p of points) {
             minX = Math.min(minX, p.x);
             minY = Math.min(minY, p.y);
             maxX = Math.max(maxX, p.x);
             maxY = Math.max(maxY, p.y);
         }
-        
+
         return {
             x: minX,
             y: minY,
