@@ -89,10 +89,17 @@ const Constants = {
 
     /** Export line width (fixed for consistent output) */
     EXPORT_LINE_WIDTH: 2,
-    EXPORT_LINE_WIDTH_THICK: 4
+    EXPORT_LINE_WIDTH_THICK: 4,
+
+    // ==================== APP INFO ====================
+    APP_VERSION: 'v1.4.0',
+    GITHUB_URL: 'https://github.com/Jeremy8776/Arma-Reforger-Map-Overlay-Zone-Editor'
 };
 
-// Freeze to prevent accidental modification
+/**
+ * Freeze the object to prevent accidental modification
+ * This needs to be done after the object is fully defined
+ */
 Object.freeze(Constants);
 
 // Export for use in other modules

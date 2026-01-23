@@ -167,6 +167,8 @@ class ZoneEditorApp {
             pt2WorldY: document.getElementById('pt2WorldY')
         });
 
+
+        this.initializeVersion();
         this.setupEventListeners();
         this.setupCallbacks();
         this.fileHandler.setupDragAndDrop(this.elements.canvasContainer, this.elements.uploadPrompt);
@@ -181,6 +183,14 @@ class ZoneEditorApp {
         } else {
             const mapUrl = urlParams.get('mapurl');
             if (mapUrl) this.fileHandler.loadLocalMapImage(mapUrl, true);
+        }
+    }
+
+    initializeVersion() {
+        const versionLink = document.getElementById('appVersionLink');
+        if (versionLink && window.Constants) {
+            versionLink.textContent = Constants.APP_VERSION;
+            versionLink.href = Constants.GITHUB_URL;
         }
     }
 

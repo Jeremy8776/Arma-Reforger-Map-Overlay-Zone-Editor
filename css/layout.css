@@ -59,6 +59,17 @@
     padding: 2px 6px;
     background: var(--color-bg-tertiary);
     border-radius: var(--radius-sm);
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.version:hover {
+    color: var(--color-text-primary);
+    background: var(--color-bg-tertiary-hover, #2a2d35);
+    /* Fallback if var not defined */
+    border: 1px solid var(--color-border);
+    margin: -1px;
+    /* To offset border */
 }
 
 .header-info {
