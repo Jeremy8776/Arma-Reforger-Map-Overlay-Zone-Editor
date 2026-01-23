@@ -159,3 +159,8 @@ class LineTool {
         this.tempShape = null;
     }
 }
+
+// Export for use in other modules
+window.RectangleTool = RectangleTool;
+window.CircleTool = CircleTool;
+window.LineTool = LineTool;

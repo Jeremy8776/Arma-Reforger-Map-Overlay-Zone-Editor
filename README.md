@@ -10,7 +10,7 @@
 
 <br>
 
-![Version](https://img.shields.io/badge/version-1.0.0-blue.svg) ![License](https://img.shields.io/badge/license-MIT-green.svg) ![Arma Reforger](https://img.shields.io/badge/Reforger-Compatible-orange.svg)
+![Version](https://img.shields.io/badge/version-1.3.1-blue.svg) ![License](https://img.shields.io/badge/license-MIT-green.svg) ![Arma Reforger](https://img.shields.io/badge/Reforger-Compatible-orange.svg)
 
 ## Overview
 

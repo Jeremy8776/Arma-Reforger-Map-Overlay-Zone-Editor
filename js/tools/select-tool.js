@@ -245,3 +245,6 @@ class SelectTool {
         }
     }
 }
+
+// Export for use in other modules
+window.SelectTool = SelectTool;

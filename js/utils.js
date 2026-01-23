@@ -8,7 +8,7 @@ const Utils = {
      * Generate a unique ID for zones
      */
     generateId() {
-        return 'zone_' + Date.now().toString(36) + Math.random().toString(36).substr(2, 9);
+        return 'zone_' + Date.now().toString(36) + Math.random().toString(36).substring(2, 11);
     },
 
     /**
@@ -50,12 +50,12 @@ const Utils = {
         // Check for compressed formats which we can't handle in basic JS
         // DXT1, DXT3, DXT5, BC4 (ATI1), BC5 (ATI2), DX10 (BC7 etc)
         const compressedFormats = ['DXT1', 'DXT3', 'DXT5', 'ATI1', 'ATI2', 'DX10', 'BC7 '];
-        if (compressedFormats.includes(fourCCString) || fourCCString.trim() !== '') {
-            // If it has a FourCC, it's likely compressed or special format
-            // Unless it's empty/null (0), which usually means uncompressed RGBA in legacy DDS
-            // However, most modern tools write FourCC even for uncompressed. 
-            // We only support raw RGBA for now.
-            throw new Error(`Compressed DDS format (${fourCCString}) is not supported in browser. Please convert to PNG/JPG.`);
+        const trimmedFourCC = fourCCString.trim();
+
+        // FIX: Only reject known compressed formats, not all non-empty FourCC strings
+        // An empty FourCC (0) usually means uncompressed RGBA/BGRA
+        if (trimmedFourCC !== '' && compressedFormats.includes(trimmedFourCC)) {
+            throw new Error(`Compressed DDS format (${trimmedFourCC}) is not supported in browser. Please convert to PNG/JPG.`);
         }
 
         const dataOffset = offset + 4 + headerSize;
@@ -298,6 +298,34 @@ const Utils = {
      */
     clamp(value, min, max) {
         return Math.min(Math.max(value, min), max);
+    },
+
+    /**
+     * Offset a zone's position by a given amount
+     * Used by copy/paste/duplicate operations
+     * @param {Object} zone - Zone object to offset (mutated in place)
+     * @param {number} offset - Offset amount in pixels
+     * @returns {Object} The same zone object (for chaining)
+     */
+    offsetZone(zone, offset) {
+        if (zone.cx !== undefined) {
+            zone.cx += offset;
+            zone.cy += offset;
+        }
+        if (zone.x !== undefined) {
+            zone.x += offset;
+            zone.y += offset;
+        }
+        if (zone.x1 !== undefined) {
+            zone.x1 += offset;
+            zone.y1 += offset;
+            zone.x2 += offset;
+            zone.y2 += offset;
+        }
+        if (zone.points) {
+            zone.points = zone.points.map(p => ({ x: p.x + offset, y: p.y + offset }));
+        }
+        return zone;
     },
 
     /**

@@ -222,9 +222,9 @@ class ContextMenu {
 
         const newName = prompt('Enter new zone name:', zone.name);
         if (newName && newName.trim()) {
-            this.app.saveHistory();
+            this.app.historyManager.saveHistory();
             this.app.zoneManager.updateZone(zoneId, { name: newName.trim() });
-            this.app.updateZoneList();
+            this.app.zoneListUI.updateZoneList();
         }
     }
 
@@ -232,37 +232,18 @@ class ContextMenu {
         const zone = this.app.zoneManager.getZone(zoneId);
         if (!zone) return;
 
-        this.app.saveHistory();
+        this.app.historyManager.saveHistory();
 
-        // Deep clone the zone
+        // Deep clone and offset the zone
         const clone = Utils.deepClone(zone);
         clone.id = Utils.generateId();
         clone.name = zone.name + ' (Copy)';
-
-        // Offset the clone slightly
-        const offset = 20;
-        if (clone.cx !== undefined) {
-            clone.cx += offset;
-            clone.cy += offset;
-        }
-        if (clone.x !== undefined) {
-            clone.x += offset;
-            clone.y += offset;
-        }
-        if (clone.x1 !== undefined) {
-            clone.x1 += offset;
-            clone.y1 += offset;
-            clone.x2 += offset;
-            clone.y2 += offset;
-        }
-        if (clone.points) {
-            clone.points = clone.points.map(p => ({ x: p.x + offset, y: p.y + offset }));
-        }
+        Utils.offsetZone(clone, 20);
 
         this.app.zoneManager.zones.push(clone);
         this.app.zoneManager.selectZone(clone.id);
         this.app.zoneManager.saveToStorage();
-        this.app.updateZoneList();
+        this.app.zoneListUI.updateZoneList();
         this.app.core.requestRender();
     }
 
@@ -276,36 +257,18 @@ class ContextMenu {
     pasteZone() {
         if (!this.clipboard) return;
 
-        this.app.saveHistory();
+        this.app.historyManager.saveHistory();
 
+        // Deep clone and offset the zone
         const clone = Utils.deepClone(this.clipboard);
         clone.id = Utils.generateId();
         clone.name = this.clipboard.name + ' (Pasted)';
-
-        // Offset the paste slightly
-        const offset = 30;
-        if (clone.cx !== undefined) {
-            clone.cx += offset;
-            clone.cy += offset;
-        }
-        if (clone.x !== undefined) {
-            clone.x += offset;
-            clone.y += offset;
-        }
-        if (clone.x1 !== undefined) {
-            clone.x1 += offset;
-            clone.y1 += offset;
-            clone.x2 += offset;
-            clone.y2 += offset;
-        }
-        if (clone.points) {
-            clone.points = clone.points.map(p => ({ x: p.x + offset, y: p.y + offset }));
-        }
+        Utils.offsetZone(clone, 30);
 
         this.app.zoneManager.zones.push(clone);
         this.app.zoneManager.selectZone(clone.id);
         this.app.zoneManager.saveToStorage();
-        this.app.updateZoneList();
+        this.app.zoneListUI.updateZoneList();
         this.app.core.requestRender();
     }
 
@@ -313,15 +276,15 @@ class ContextMenu {
         const zone = this.app.zoneManager.getZone(zoneId);
         if (zone) {
             this.app.zoneManager.updateZone(zoneId, { visible: !zone.visible });
-            this.app.updateZoneList();
+            this.app.zoneListUI.updateZoneList();
         }
     }
 
     deleteZone(zoneId) {
-        this.app.saveHistory();
+        this.app.historyManager.saveHistory();
         this.app.zoneManager.deleteZone(zoneId);
         this.app.elements.zonePropertiesSection.style.display = 'none';
-        this.app.updateZoneList();
+        this.app.zoneListUI.updateZoneList();
         this.app.updateUI();
     }
 

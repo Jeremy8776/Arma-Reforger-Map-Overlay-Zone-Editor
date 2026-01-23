@@ -85,3 +85,6 @@ class ToolManager {
         };
     }
 }
+
+// Export for use in other modules
+window.ToolManager = ToolManager;

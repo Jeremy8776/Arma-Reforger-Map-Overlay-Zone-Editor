@@ -5,6 +5,12 @@
 .canvas-container {
     flex: 1;
     position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
     background:
         radial-gradient(circle at center, var(--color-bg-tertiary) 0%, var(--color-bg-primary) 100%),
         repeating-linear-gradient(0deg, transparent, transparent 49px, var(--color-border) 49px, var(--color-border) 50px),
@@ -14,10 +20,8 @@
 }
 
 .upload-prompt {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    position: relative;
+    /* Removed absolute positioning */
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -28,6 +32,9 @@
     border: 2px dashed var(--color-border);
     border-radius: var(--radius-lg);
     transition: all var(--transition-normal);
+    max-width: 90%;
+    max-height: 90%;
+    overflow-y: auto;
 }
 
 .upload-prompt:hover {
@@ -38,7 +45,7 @@
 .upload-prompt.drag-over {
     border-color: var(--color-accent);
     background: rgba(var(--color-accent-rgb), 0.1);
-    transform: translate(-50%, -50%) scale(1.02);
+    transform: scale(1.02);
 }
 
 .upload-icon {
@@ -60,6 +67,118 @@
 .upload-hint {
     font-size: 12px;
     color: var(--color-text-muted);
+}
+
+.divider-horizontal {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    margin: var(--spacing-sm) 0;
+    color: var(--color-text-muted);
+    font-size: 11px;
+    letter-spacing: 1px;
+}
+
+.divider-horizontal::before,
+.divider-horizontal::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--color-border);
+}
+
+.divider-horizontal span {
+    padding: 0 var(--spacing-sm);
+}
+
+.local-maps-section {
+    width: 100%;
+    text-align: left;
+}
+
+.local-maps-section h3 {
+    font-size: 14px;
+    color: var(--color-text-secondary);
+    margin-bottom: var(--spacing-sm);
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+.map-list {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--spacing-sm);
+    max-height: 400px;
+    overflow-y: auto;
+    padding-right: var(--spacing-xs);
+}
+
+.map-list-item {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-xs);
+    background: var(--color-bg-tertiary);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    position: relative;
+
+}
+
+.map-list-item:hover {
+    background: var(--color-bg-elevated);
+    border-color: var(--color-accent);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.map-thumbnail {
+    width: 100%;
+    height: 80px;
+    object-fit: cover;
+    border-radius: var(--radius-xs);
+    background-color: var(--color-bg-primary);
+    border: 1px solid var(--color-border);
+}
+
+.map-info-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.map-name {
+    font-size: 12px;
+    color: var(--color-text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-weight: 500;
+}
+
+.map-actions {
+    display: flex;
+    gap: 4px;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.map-list-item:hover .map-actions {
+    opacity: 1;
+}
+
+.action-icon {
+    color: var(--color-text-muted);
+    padding: 2px;
+    border-radius: 4px;
+}
+
+.action-icon:hover {
+    background: var(--color-bg-primary);
+    color: var(--color-accent);
 }
 
 #mapCanvas {

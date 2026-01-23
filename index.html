@@ -25,7 +25,7 @@
                     <img src="logo-icon.svg" alt="ARMOZE" />
                 </div>
                 <h1>ARMOZE</h1>
-                <span class="version">v1.0</span>
+                <span class="version">v1.3.1</span>
             </div>
             <div class="header-info">
                 <div class="coords-display" id="coordsDisplay">
@@ -111,24 +111,42 @@
                 </div>
             </aside>
 
-            <!-- Canvas Area -->
-            <div class="canvas-container" id="canvasContainer">
-                <div class="upload-prompt" id="uploadPrompt">
-                    <div class="upload-icon">
-                        <i data-lucide="map" style="width: 64px; height: 64px;"></i>
-                    </div>
-                    <h2>Load Your Map</h2>
-                    <p>Upload an EDDS, DDS, PNG, or JPG file</p>
-                    <button class="btn btn-primary btn-large" id="btnUpload">
-                        <i data-lucide="upload-cloud"></i>
-                        Choose File
-                    </button>
-                    <input type="file" id="fileInput" accept=".edds,.dds,.png,.jpg,.jpeg" hidden>
-                    <span class="upload-hint">or drag and drop</span>
+            <div class="main-view-column">
+                <!-- Tab Bar -->
+                <div class="tab-bar" id="tabBar">
+                    <!-- Tabs will be injected here -->
                 </div>
-                <canvas id="mapCanvas"></canvas>
-                <div class="zoom-indicator" id="zoomIndicator">100%</div>
-            </div>
+
+                <!-- Canvas Area -->
+                <div class="canvas-container" id="canvasContainer">
+                    <div class="upload-prompt" id="uploadPrompt">
+                        <div class="upload-icon">
+                            <i data-lucide="map" style="width: 64px; height: 64px;"></i>
+                        </div>
+                        <h2>Load Your Map</h2>
+                        <p>Upload an EDDS, DDS, PNG, or JPG file</p>
+                        <button class="btn btn-primary btn-large" id="btnUpload">
+                            <i data-lucide="upload-cloud"></i>
+                            Choose File
+                        </button>
+                        <input type="file" id="fileInput" accept=".edds,.dds,.png,.jpg,.jpeg" hidden>
+                        <span class="upload-hint">or drag and drop</span>
+
+                        <div class="divider-horizontal"><span>OR</span></div>
+                        <div class="local-maps-section">
+                            <h3>Local Maps</h3>
+                            <div class="map-list" id="localMapList">
+                                <!-- Populated dynamically -->
+                                <div
+                                    style="width: 100%; text-align: center; font-size: 12px; color: var(--color-text-muted); grid-column: span 2;">
+                                    Scanning maps...</div>
+                            </div>
+                        </div>
+                    </div>
+                    <canvas id="mapCanvas"></canvas>
+                    <div class="zoom-indicator" id="zoomIndicator">100%</div>
+                </div>
+            </div> <!-- End of main-view-column -->
 
             <!-- Zone Panel -->
             <aside class="zone-panel">
@@ -337,7 +355,7 @@
                     </div>
 
                     <div class="calibration-section">
-                        <small style="display: block; margin-bottom: 8px; color: var(--text-muted);">
+                        <small style="display: block; margin-bottom: 8px; color: var(--color-text-muted);">
                             Don't know the exact offset? Use the calibration tool.
                         </small>
                         <button class="btn btn-secondary btn-small" id="btnOpenCalibration">
@@ -443,17 +461,44 @@
     <!-- Scripts -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/utif@3.1.0/UTIF.js"></script>
+
+    <!-- Utilities & Constants -->
+    <script src="js/constants.js"></script>
     <script src="js/utils.js"></script>
+
+    <!-- Core Modules -->
     <script src="js/core/canvas-core.js"></script>
+    <script src="js/core/event-handler.js"></script>
+
+    <!-- Zone Modules -->
     <script src="js/zones/zone-manager.js"></script>
     <script src="js/zones/zone-renderer.js"></script>
+
+    <!-- Tool Modules -->
     <script src="js/tools/select-tool.js"></script>
     <script src="js/tools/shape-tools.js"></script>
     <script src="js/tools/path-tools.js"></script>
     <script src="js/tools/tool-manager.js"></script>
-    <script src="js/core/event-handler.js"></script>
+
+    <!-- UI Modules -->
+    <script src="js/ui/tab-manager.js"></script>
+    <script src="js/ui/zone-list-ui.js"></script>
+    <script src="js/ui/zone-properties-ui.js"></script>
+
+    <!-- Service Modules -->
+    <script src="js/services/history-manager.js"></script>
+    <script src="js/services/project-manager.js"></script>
+    <script src="js/services/calibration-service.js"></script>
+    <script src="js/services/file-handler.js"></script>
+
+    <!-- Export & Context Menu -->
     <script src="js/export-handler.js"></script>
     <script src="js/context-menu.js"></script>
+
+    <!-- Local Maps Data -->
+    <script src="Maps/maps.js"></script>
+
+    <!-- Main Application -->
     <script src="js/app.js"></script>
     <script>
         // Initialize icons after load

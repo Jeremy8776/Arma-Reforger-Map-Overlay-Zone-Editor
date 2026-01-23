@@ -5,6 +5,36 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.1] - 2026-01-23
+
+### Fixed
+- **Deprecated API**: Replaced deprecated `substr()` with `substring()` for future browser compatibility
+- **Null Safety**: Added defensive null-coalescing operators in zone coordinate formatting to prevent potential runtime errors
+- **Code Cleanup**: Removed unused `dashMove` variable in ZoneRenderer
+- **Code Cleanup**: Removed duplicate JSDoc comment block in ExportHandler
+- **CSS Variable Typo**: Fixed `--text-muted` to `--color-text-muted` in calibration section
+- **Comment Clarity**: Clarified confusing comment about `invertY` default value
+
+## [1.3.0] - 2026-01-23
+
+### Added
+- **Modular Architecture**: Major refactoring to improve code maintainability and testability:
+    - **UI Modules**: `TabManager`, `ZoneListUI`, `ZonePropertiesUI` for cleaner separation of concerns
+    - **Service Modules**: `HistoryManager`, `ProjectManager`, `CalibrationService`, `FileHandler`
+    - **Constants Module**: Centralized configuration values to eliminate magic numbers
+- **Utils.offsetZone()**: New utility function for zone offset operations
+
+### Fixed
+- **Critical: Keyboard delete now saves history** - Deleting zones via Delete/Backspace key now properly saves to undo history
+- **DDS Parser Logic**: Fixed incorrect rejection of valid uncompressed DDS files
+- **Context Menu Integration**: Updated to use new modular methods
+
+### Changed
+- **app.js refactored**: Reduced from 1205 lines to ~420 lines by extracting modules
+- All modules now have consistent `window.` exports for better interoperability
+- Removed unused `render()` method from `ZoneRenderer` class
+- Improved JSDoc documentation across all modules
+
 ## [1.2.0] - 2026-01-21
 
 ### Added

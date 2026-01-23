@@ -123,8 +123,13 @@ class EventHandler {
         if (isTyping) return;
 
         // Delete selected zone (only when not typing)
+        // FIX: Save history before deleting to enable undo
         if ((e.key === 'Delete' || e.key === 'Backspace') && this.zoneManager.selectedZoneId) {
             e.preventDefault();
+            // Access app's history manager through the global app instance
+            if (window.app && window.app.historyManager) {
+                window.app.historyManager.saveHistory();
+            }
             this.zoneManager.deleteZone(this.zoneManager.selectedZoneId);
             return;
         }
@@ -147,3 +152,6 @@ class EventHandler {
         }
     }
 }
+
+// Export for use in other modules
+window.EventHandler = EventHandler;

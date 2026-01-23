@@ -213,4 +213,16 @@ class CanvasCore {
         }
         ctx.stroke();
     }
+
+    /**
+     * Update transform after external zoom/pan changes
+     * Used when restoring tab state
+     */
+    updateTransform() {
+        // Trigger a render to apply the new transform
+        this.requestRender();
+    }
 }
+
+// Export for use in other modules
+window.CanvasCore = CanvasCore;

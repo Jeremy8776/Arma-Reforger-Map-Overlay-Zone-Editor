@@ -8,12 +8,8 @@ class ZoneRenderer {
         this.manager = zoneManager;
     }
 
-    render() {
-        if (!this.core.renderBase()) return; // Draw grid/map only
-
-        this.drawZones();
-        this.drawSelection();
-    }
+    // Note: The render() method was removed as it was never used.
+    // The application calls drawZones() and drawSelection() directly for more control.
 
     drawZones() {
         const ctx = this.core.ctx;
@@ -36,7 +32,6 @@ class ZoneRenderer {
             ctx.lineWidth = (isSelected ? 3 : isHovered ? 2 : 1.5) / this.core.zoom;
 
             // Set line dash based on style
-            let dashMove = 0;
             if (zone.style === 'dashed') {
                 ctx.setLineDash([15 / this.core.zoom, 10 / this.core.zoom]);
             } else if (zone.style === 'dotted') {
@@ -425,3 +420,6 @@ class ZoneRenderer {
         return exportCanvas;
     }
 }
+
+// Export for use in other modules
+window.ZoneRenderer = ZoneRenderer;

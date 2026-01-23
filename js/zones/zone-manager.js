@@ -182,3 +182,6 @@ class ZoneManager {
         return Utils.distance(point, projection);
     }
 }
+
+// Export for use in other modules
+window.ZoneManager = ZoneManager;

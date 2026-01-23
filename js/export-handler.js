@@ -24,8 +24,7 @@ class ExportHandler {
         const scale = settings.mapScale || 1;
         const originX = settings.originX || 0;
         const originY = settings.originY || 0;
-        const invertY = settings.invertY !== false; // Default true if not specified? No, default false for safety.
-        // Actually, check what came from App. default is checked in HTML, so passing prop.
+        const invertY = settings.invertY !== false; // Default true (HTML checkbox is checked by default)
 
         // Transform coordinates based on settings
         const transformedZones = zones.map(zone => this.transformZone(zone, scale, originX, originY, settings.invertY));
@@ -304,7 +303,7 @@ class SCR_ZoneManagerComponent: SCR_BaseGameModeComponent
      */
     exportJSON(zones) {
         const exportData = {
-            version: "1.0",
+            version: "1.3.1",
             generated: new Date().toISOString(),
             generator: "Arma Reforger Zone Editor",
             mapInfo: {
@@ -684,9 +683,6 @@ class ImportZonesPlugin : WorkbenchPlugin
         Utils.downloadFile(script, 'ImportZonesPlugin.c', 'text/plain');
     }
 
-    /**
-     * Escape string for use in script
-     */
     /**
      * Escape string for use in script
      */
