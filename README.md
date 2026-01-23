@@ -8,7 +8,7 @@
   <i>Draw, design, and export map zones for your Reforger server in minutes.</i>
   <br><br>
   
-  ![Version](https://img.shields.io/badge/version-1.3.1-blue.svg)
+  ![Version](https://img.shields.io/badge/version-1.3.2-blue.svg)
   ![License](https://img.shields.io/badge/license-MIT-green.svg)
   ![Arma Reforger](https://img.shields.io/badge/Arma_Reforger-Compatible-orange.svg)
   ![Platform](https://img.shields.io/badge/platform-Web_Browser-lightgrey.svg)

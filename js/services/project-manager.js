@@ -18,7 +18,7 @@ class ProjectManager {
         }
 
         const projectData = {
-            version: "1.3.1",
+            version: "1.3.2",
             created: new Date().toISOString(),
             zones: zones
         };

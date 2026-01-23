@@ -303,7 +303,7 @@ class SCR_ZoneManagerComponent: SCR_BaseGameModeComponent
      */
     exportJSON(zones) {
         const exportData = {
-            version: "1.3.1",
+            version: "1.3.2",
             generated: new Date().toISOString(),
             generator: "Arma Reforger Zone Editor",
             mapInfo: {
