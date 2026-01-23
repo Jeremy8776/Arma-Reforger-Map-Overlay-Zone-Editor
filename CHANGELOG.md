@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.0] - 2026-01-23
+
+### Added
+- **Zone Fill Patterns**: Added support for custom fill patterns for zones (Solid, Diagonal, Vertical, Horizontal, Grid, Dots, Crosshatch).
+- **Documentation Wiki**: Added comprehensive wiki documentation (Home, Getting Started, Drawing Tools, Project Management, Exporting).
+- **Map Asset**: Added separate `Ruha_map.png` for cleaner map handling.
+
+### Fixed
+- **Git Ignoring**: Correctly ignored `Maps/temp_extract/` directory to prevent repository bloat.
+
 ## [1.3.2] - 2026-01-23
 
 ### Added

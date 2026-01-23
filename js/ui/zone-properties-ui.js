@@ -18,6 +18,7 @@ class ZonePropertiesUI {
             zoneName: elements.zoneName,
             zoneType: elements.zoneType,
             zoneStyle: elements.zoneStyle,
+            zoneFillPattern: elements.zoneFillPattern,
             zoneColor: elements.zoneColor,
             zoneOpacity: elements.zoneOpacity,
             opacityValue: elements.opacityValue,
@@ -43,6 +44,7 @@ class ZonePropertiesUI {
         this.elements.zoneName.addEventListener('input', () => this.updateSelectedZone());
         this.elements.zoneType.addEventListener('change', () => this.updateSelectedZone());
         this.elements.zoneStyle.addEventListener('change', () => this.updateSelectedZone());
+        this.elements.zoneFillPattern.addEventListener('change', () => this.updateSelectedZone());
         this.elements.zoneColor.addEventListener('input', () => this.updateSelectedZone());
         this.elements.zoneOpacity.addEventListener('input', () => {
             this.elements.opacityValue.textContent = this.elements.zoneOpacity.value + '%';
@@ -79,6 +81,7 @@ class ZonePropertiesUI {
         this.elements.zoneName.value = zone.name;
         this.elements.zoneType.value = zone.type;
         this.elements.zoneStyle.value = zone.style || 'solid';
+        this.elements.zoneFillPattern.value = zone.fillPattern || 'solid';
         this.elements.zoneColor.value = zone.color;
         this.elements.zoneOpacity.value = zone.opacity * 100;
         this.elements.opacityValue.textContent = Math.round(zone.opacity * 100) + '%';
@@ -150,6 +153,7 @@ class ZonePropertiesUI {
             name: this.elements.zoneName.value,
             type: this.elements.zoneType.value,
             style: this.elements.zoneStyle.value || 'solid',
+            fillPattern: this.elements.zoneFillPattern.value || 'solid',
             color: this.elements.zoneColor.value,
             opacity: parseInt(this.elements.zoneOpacity.value) / 100,
             // Label styling

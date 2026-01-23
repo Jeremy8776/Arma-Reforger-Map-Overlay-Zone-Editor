@@ -57,6 +57,7 @@ class ZoneEditorApp {
             zoneName: document.getElementById('zoneName'),
             zoneType: document.getElementById('zoneType'),
             zoneStyle: document.getElementById('zoneStyle'),
+            zoneFillPattern: document.getElementById('zoneFillPattern'),
             zoneColor: document.getElementById('zoneColor'),
             zoneOpacity: document.getElementById('zoneOpacity'),
             opacityValue: document.getElementById('opacityValue'),

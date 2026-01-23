@@ -22,12 +22,19 @@ class ZoneRenderer {
             ctx.translate(this.core.panX, this.core.panY);
             ctx.scale(this.core.zoom, this.core.zoom);
 
-            const fillColor = Utils.hexToRgba(zone.color, zone.opacity);
+            let fillStyle;
+            if (zone.fillPattern && zone.fillPattern !== 'solid') {
+                fillStyle = this.createZonePattern(ctx, zone.fillPattern, zone.color, zone.opacity);
+            }
+            if (!fillStyle) {
+                fillStyle = Utils.hexToRgba(zone.color, zone.opacity);
+            }
+
             const strokeColor = zone.color;
             const isSelected = zone.id === this.manager.selectedZoneId;
             const isHovered = zone.id === this.manager.hoveredZoneId;
 
-            ctx.fillStyle = fillColor;
+            ctx.fillStyle = fillStyle;
             ctx.strokeStyle = strokeColor;
             ctx.lineWidth = (isSelected ? 3 : isHovered ? 2 : 1.5) / this.core.zoom;
 
@@ -88,6 +95,76 @@ class ZoneRenderer {
 
             ctx.restore();
         }
+    }
+
+    /**
+     * Create a pattern for zone filling
+     */
+    createZonePattern(ctx, type, color, opacity) {
+        if (!type || type === 'solid') return null;
+
+        const size = 20;
+        const pCanvas = document.createElement('canvas');
+        pCanvas.width = size;
+        pCanvas.height = size;
+        const pCtx = pCanvas.getContext('2d');
+
+        const rgba = Utils.hexToRgba(color, opacity);
+        pCtx.strokeStyle = rgba;
+        pCtx.fillStyle = rgba;
+        pCtx.lineWidth = 2;
+        pCtx.lineCap = 'butt';
+
+        pCtx.beginPath();
+        switch (type) {
+            case 'diagonal_right': // /
+                for (let i = -2; i < 3; i++) {
+                    let offset = i * 10;
+                    pCtx.moveTo(offset, size);
+                    pCtx.lineTo(size + offset, 0);
+                }
+                pCtx.stroke();
+                break;
+            case 'diagonal_left': // \
+                for (let i = -2; i < 3; i++) {
+                    let offset = i * 10;
+                    pCtx.moveTo(offset, 0);
+                    pCtx.lineTo(size + offset, size);
+                }
+                pCtx.stroke();
+                break;
+            case 'vertical':
+                pCtx.moveTo(size / 2, 0);
+                pCtx.lineTo(size / 2, size);
+                pCtx.stroke();
+                break;
+            case 'horizontal':
+                pCtx.moveTo(0, size / 2);
+                pCtx.lineTo(size, size / 2);
+                pCtx.stroke();
+                break;
+            case 'grid':
+                pCtx.moveTo(size / 2, 0); pCtx.lineTo(size / 2, size);
+                pCtx.moveTo(0, size / 2); pCtx.lineTo(size, size / 2);
+                pCtx.stroke();
+                break;
+            case 'dots':
+                pCtx.arc(size / 2, size / 2, 2, 0, Math.PI * 2);
+                pCtx.fill();
+                break;
+            case 'crosshatch':
+                for (let i = -2; i < 3; i++) {
+                    let offset = i * 10;
+                    pCtx.moveTo(offset, size);
+                    pCtx.lineTo(size + offset, 0);
+                    pCtx.moveTo(offset, 0);
+                    pCtx.lineTo(size + offset, size);
+                }
+                pCtx.stroke();
+                break;
+        }
+
+        return ctx.createPattern(pCanvas, 'repeat');
     }
 
     drawZoneLabel(zone) {
@@ -369,7 +446,14 @@ class ZoneRenderer {
         for (const zone of zones) {
             if (!zone.visible) continue;
 
-            ctx.fillStyle = Utils.hexToRgba(zone.color, zone.opacity);
+            let fillStyle;
+            if (zone.fillPattern && zone.fillPattern !== 'solid') {
+                fillStyle = this.createZonePattern(ctx, zone.fillPattern, zone.color, zone.opacity);
+            }
+            if (!fillStyle) {
+                fillStyle = Utils.hexToRgba(zone.color, zone.opacity);
+            }
+            ctx.fillStyle = fillStyle;
             ctx.strokeStyle = zone.color;
             ctx.lineWidth = 2; // Fixed line width for export
 
