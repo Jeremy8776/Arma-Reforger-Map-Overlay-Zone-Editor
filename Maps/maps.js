@@ -5,4 +5,5 @@ window.LOCAL_MAPS = [
     { name: "Everon (Rasterized)", file: "EveronRasterized.png" },
     { name: "Everon (Clean)", file: "Everon.png" },
     { name: "Ruha", file: "Ruha_map.png" },
+    { name: "Anizay", file: "anizay_ras.png" },
 ];

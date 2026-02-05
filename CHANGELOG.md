@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.0] - 2026-02-05
+
+### Added
+- **Map Extractor Improvements**:
+    - **Open Output Folder**: Added a button to instantly open the destination folder after a successful extraction.
+    - **Native Clipboard**: Implemented robust "Copy to Clipboard" functionality for extraction commands using Electron's native API.
+    - **Smart Defaults**: Extractor now automatically defaults to the user's `Downloads` folder if no output directory is set.
+
+### Fixed
+- **Extraction Detection**: Fixed regex patterns to correctly identify successful extractions from the PowerShell script output.
+- **Path Handling**: Improved handling of file paths with spaces in the "Open Folder" feature.
+
 ## [1.4.0] - 2026-01-23
 
 ### Added

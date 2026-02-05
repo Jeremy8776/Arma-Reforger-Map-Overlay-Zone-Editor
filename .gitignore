@@ -4,3 +4,6 @@ Thumbs.db
 .vscode/
 .idea/
 Maps/temp_extract/
+node_modules/
+dist/
+release/

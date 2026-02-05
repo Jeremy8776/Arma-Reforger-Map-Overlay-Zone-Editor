@@ -88,6 +88,7 @@
 
     <!-- Styles -->
     <link rel="stylesheet" href="index.css">
+    <link rel="stylesheet" href="css/extractor.css">
 </head>
 
 <body>
@@ -179,7 +180,12 @@
                     </button>
                 </div>
 
-                <div style="margin-top: auto;">
+                <div class="tool-group">
+                    <span class="tool-group-label">Tools</span>
+                    <button class="tool-btn" id="btnOpenExtractor" title="Map Texture Extractor">
+                        <i data-lucide="package-search"></i>
+                    </button>
+                    <div class="tool-separator"></div>
                     <a href="docs.html" class="tool-btn" title="Documentation">
                         <i data-lucide="book-open"></i>
                     </a>
@@ -582,6 +588,10 @@
     <!-- Export & Context Menu -->
     <script src="js/export-handler.js"></script>
     <script src="js/context-menu.js"></script>
+
+    <!-- Map Extractor Tool -->
+    <script src="js/services/map-extractor-service.js"></script>
+    <script src="js/ui/map-extractor-ui.js"></script>
 
     <!-- Local Maps Data -->
     <script src="Maps/maps.js"></script>

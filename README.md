@@ -38,6 +38,7 @@ Instead of manually calculating coordinates or scripting trigger areas, simply:
 - **Polygon/Pen Tool** - Create complex irregular shapes with precision
 - **Freehand Tool** - Sketch natural boundaries quickly
 - **Grid Snapping** - Align zones perfectly with toggleable snap grid
+- **Map Texture Extractor** - Extract textures directly from Arma PAK files via built-in tool UI
 
 ### Zone Types
 - Safe Zones
@@ -114,6 +115,7 @@ npx serve .
 | Duplicate | `Ctrl + D` |
 | Delete | `Delete` |
 | Export | `Ctrl + E` |
+| Extractor | `Ctrl + Shift + T` |
 
 ## Screenshots
 

@@ -128,6 +128,8 @@ class ZoneEditorApp {
         this.projectManager = new ProjectManager(this);
         this.fileHandler = new FileHandler(this);
         this.calibrationService = new CalibrationService(this);
+        this.extractorService = new MapExtractorService(this);
+        this.extractorUI = new MapExtractorUI(this);
 
         // State
         this.selectedZoneIds = []; // For multi-select
@@ -167,6 +169,10 @@ class ZoneEditorApp {
             pt2WorldY: document.getElementById('pt2WorldY')
         });
 
+        // Initialize Extractor
+        this.extractorService.init();
+        this.extractorUI.init();
+
 
         this.initializeVersion();
         this.setupEventListeners();
@@ -183,6 +189,20 @@ class ZoneEditorApp {
         } else {
             const mapUrl = urlParams.get('mapurl');
             if (mapUrl) this.fileHandler.loadLocalMapImage(mapUrl, true);
+        }
+
+        // --- Window State Handling for UI ---
+        if (window.electronAPI && window.electronAPI.onWindowState) {
+            window.electronAPI.onWindowState((state) => {
+                const app = document.getElementById('app');
+                if (state === 'maximized') {
+                    app.classList.add('is-maximized');
+                } else {
+                    app.classList.remove('is-maximized');
+                }
+            });
+            // Initial check: if we started maximized (which Main does), force the state
+            document.getElementById('app').classList.add('is-maximized');
         }
     }
 
@@ -201,67 +221,79 @@ class ZoneEditorApp {
         if (!this.elements.localMapList) return;
 
         try {
+            // Re-read from script if possible (needs reload in real world, but okay here)
+            // Ideally we'd re-fetch maps.js but it's a script tag.
+            // For now, rely on existing window.LOCAL_MAPS being up to date or updated via electron.
+
+            // In Electron context, we might listen for updates or re-scan.
+            // For now, just render whatever is in window.LOCAL_MAPS
             const maps = window.LOCAL_MAPS || [];
-            const list = this.elements.localMapList;
-            list.innerHTML = '';
-
-            if (!maps || maps.length === 0) {
-                list.innerHTML = '<div style="grid-column: span 2; text-align: center; font-size: 12px; color: var(--color-text-muted);">No maps found in Maps/maps.js</div>';
-                return;
-            }
-
-            maps.forEach(mapData => {
-                const fileName = typeof mapData === 'string' ? mapData : mapData.file;
-                const displayName = typeof mapData === 'string' ? mapData : mapData.name;
-                const fileUrl = `Maps/${fileName}`;
-
-                const item = document.createElement('div');
-                item.className = 'map-list-item';
-                item.title = displayName;
-
-                const thumb = document.createElement('img');
-                thumb.className = 'map-thumbnail';
-                thumb.src = fileUrl;
-                thumb.loading = 'lazy';
-
-                const infoRow = document.createElement('div');
-                infoRow.className = 'map-info-row';
-
-                const nameSpan = document.createElement('span');
-                nameSpan.className = 'map-name';
-                nameSpan.textContent = displayName;
-
-                const actions = document.createElement('div');
-                actions.className = 'map-actions';
-
-                const btnNewTab = document.createElement('div');
-                btnNewTab.className = 'action-icon';
-                btnNewTab.title = 'Open in New Tab';
-                btnNewTab.innerHTML = '<i data-lucide="external-link" style="width:14px; height:14px;"></i>';
-                btnNewTab.onclick = (e) => {
-                    e.stopPropagation();
-                    const url = new URL(window.location.href);
-                    url.searchParams.set('map', fileName);
-                    window.open(url.toString(), '_blank');
-                };
-
-                actions.appendChild(btnNewTab);
-                infoRow.appendChild(nameSpan);
-                infoRow.appendChild(actions);
-                item.appendChild(thumb);
-                item.appendChild(infoRow);
-
-                item.addEventListener('click', () => this.fileHandler.loadLocalMapImage(fileName));
-                list.appendChild(item);
-            });
-
-            if (window.lucide) lucide.createIcons();
+            this.renderLocalMapList(maps);
 
         } catch (err) {
             console.warn('Could not load local maps:', err);
             if (this.elements.localMapList)
                 this.elements.localMapList.innerHTML = '<div style="grid-column: span 2; text-align: center; font-size: 12px; color: var(--color-text-muted);">Error loading maps</div>';
         }
+    }
+
+    renderLocalMapList(maps) {
+        const list = this.elements.localMapList;
+        list.innerHTML = '';
+
+        if (!maps || maps.length === 0) {
+            list.innerHTML = '<div style="grid-column: span 2; text-align: center; font-size: 12px; color: var(--color-text-muted);">No maps found in Maps/maps.js</div>';
+            return;
+        }
+
+        maps.forEach(mapData => {
+            const fileName = typeof mapData === 'string' ? mapData : mapData.file;
+            const displayName = typeof mapData === 'string' ? mapData : mapData.name;
+            const fileUrl = `Maps/${fileName}`;
+
+            const item = document.createElement('div');
+            item.className = 'map-list-item';
+            item.title = displayName;
+
+            const thumb = document.createElement('img');
+            thumb.className = 'map-thumbnail';
+            thumb.src = fileUrl;
+            thumb.loading = 'lazy';
+            // Handle broken images
+            thumb.onerror = () => { thumb.src = 'data:image/svg+xml,...'; }; // Placeholder?
+
+            const infoRow = document.createElement('div');
+            infoRow.className = 'map-info-row';
+
+            const nameSpan = document.createElement('span');
+            nameSpan.className = 'map-name';
+            nameSpan.textContent = displayName;
+
+            const actions = document.createElement('div');
+            actions.className = 'map-actions';
+
+            const btnNewTab = document.createElement('div');
+            btnNewTab.className = 'action-icon';
+            btnNewTab.title = 'Open in New Tab';
+            btnNewTab.innerHTML = '<i data-lucide="external-link" style="width:14px; height:14px;"></i>';
+            btnNewTab.onclick = (e) => {
+                e.stopPropagation();
+                const url = new URL(window.location.href);
+                url.searchParams.set('map', fileName);
+                window.open(url.toString(), '_blank');
+            };
+
+            actions.appendChild(btnNewTab);
+            infoRow.appendChild(nameSpan);
+            infoRow.appendChild(actions);
+            item.appendChild(thumb);
+            item.appendChild(infoRow);
+
+            item.addEventListener('click', () => this.fileHandler.loadLocalMapImage(fileName));
+            list.appendChild(item);
+        });
+
+        if (window.lucide) lucide.createIcons();
     }
 
     /**
@@ -437,6 +469,9 @@ class ZoneEditorApp {
             } else if (e.key === 'e') {
                 e.preventDefault();
                 this.showExportModal();
+            } else if (e.key === 'T' && e.shiftKey) {
+                e.preventDefault();
+                this.extractorUI.show();
             }
         }
     }

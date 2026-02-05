@@ -110,7 +110,7 @@
     gap: var(--spacing-sm);
     max-height: 400px;
     overflow-y: auto;
-    padding-right: var(--spacing-xs);
+    padding: var(--spacing-xs);
 }
 
 .map-list-item {

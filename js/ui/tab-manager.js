@@ -59,11 +59,7 @@ class TabManager {
             zones: zones,
             history: [],
             historyIndex: -1,
-            view: {
-                zoom: 1,
-                panX: 0,
-                panY: 0
-            }
+            view: null
         };
 
         this.tabs.push(newTab);

@@ -9,6 +9,7 @@
 @import url('css/canvas.css');
 @import url('css/zones.css');
 @import url('css/modal.css');
+@import url('css/extractor.css');
 
 /* Main Layout Adjustment for Tabs */
 /* We rely on layout.css for .main-content { display: flex; flex: 1; ... } */
@@ -19,7 +20,7 @@
    flex-direction: column;
    min-width: 0;
    position: relative;
-   overflow: hidden;
+   overflow: auto;
    height: 100%;
    min-height: 0;
    /* Prevent overflow here too */
